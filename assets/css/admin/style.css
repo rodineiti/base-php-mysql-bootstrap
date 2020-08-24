@@ -1,0 +1,28 @@
+body {
+	background-color: #eeeeee;
+}
+
+.login, .register {
+	max-width: 500px;
+	border:1px solid #ccc;
+	border-radius: 1rem;
+	margin-top: 5rem;
+	padding: 2rem;
+	text-align: center;
+}
+
+.login h1, .register h1 {
+	border-bottom:1px solid #ccc;
+	padding: 1rem;
+}
+
+.list-group-item:not(.active):hover {
+	background-color: rgba(0,0,0,.095);
+}
+
+.searchResults {
+	width: 400px;
+	background-color: #fff;;
+	position: absolute;
+	border: 1px solid #ccc;
+}

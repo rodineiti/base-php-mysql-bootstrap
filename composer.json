@@ -1,0 +1,16 @@
+{
+  "require": {
+    "php": "^7.2",
+    "ext-pdo": "^7.2",
+    "ext-json": "*",
+    "ext-curl": "*",
+    "ext-simplexml": "*",
+    "ext-mbstring": "*",
+    "ext-gd": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Src\\": "src/"
+    }
+  }
+}
