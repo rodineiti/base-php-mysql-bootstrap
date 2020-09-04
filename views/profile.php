@@ -1,14 +1,4 @@
 <div class="container profile">
-    <?php if (isset($_GET["error"]) && $_GET["error"] === "fields"): ?>
-        <div class="alert alert-warning">
-            Preencha todos os campos!
-        </div>
-    <?php endif; ?>
-    <?php if (isset($_GET["success"])): ?>
-        <div class="alert alert-success">
-            <strong>Parabéns!</strong> Dados atualizados com sucesso.
-        </div>
-    <?php endif; ?>
     <h1>Editar perfil</h1>
     <form method="POST" action="<?= BASE_URL ?>auth/update">
         <div class="form-group">

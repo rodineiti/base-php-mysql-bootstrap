@@ -6,20 +6,44 @@ use Src\Support\Jwt;
 
 class Controller
 {
+    /**
+     * @var string
+     */
     protected $lang;
+    /**
+     * @var int
+     */
     protected $limit = 10;
+    /**
+     * @var string
+     */
     protected $theme;
 
+    /**
+     * @var array
+     */
+    protected $required;
+
+    /**
+     * Controller constructor.
+     * @param string $theme
+     */
     public function __construct($theme = "template")
     {
         $this->theme = $theme;
     }
 
+    /**
+     * @return mixed
+     */
     public function method()
     {
         return $_SERVER["REQUEST_METHOD"];
     }
 
+    /**
+     * @return array|bool
+     */
     public function request()
     {
         switch ($this->method())
@@ -41,6 +65,23 @@ class Controller
         }
     }
 
+    /**
+     * @param null $path
+     */
+    public function redirect($path = null)
+    {
+        if ($path) {
+            header("Location: " . BASE_URL . $path);
+            exit;
+        }
+
+        header("Location: " . BASE_URL);
+        exit;
+    }
+
+    /**
+     * @param array $data
+     */
     public function json($data = [])
     {
         header("Content-Type: application/json; charset=UTF-8");
@@ -48,17 +89,29 @@ class Controller
         exit;
     }
 
+    /**
+     * @param $user
+     * @return string
+     */
     protected function generateJwt($user)
     {
         return Jwt::generate(["user_id" => $user]);
     }
 
+    /**
+     * @param $token
+     * @return bool
+     */
     protected function verifyJwt($token)
     {
         $jwtValidate = Jwt::validate($token);
         return (isset($jwtValidate->user_id)) ? $jwtValidate->user_id : false;
     }
 
+    /**
+     * @param string $view
+     * @param array $data
+     */
     public function view(string $view, array $data = [])
     {
         /**
@@ -69,14 +122,22 @@ class Controller
          */
 
         extract($data);
-        include "views/{$view}.php";
+        include __DIR__ . "/../../views/{$view}.php";
     }
 
+    /**
+     * @param string $view
+     * @param array $data
+     */
     public function template(string $view, array $data = [])
     {
-        include "views/{$this->theme}.php";
+        include __DIR__ . "/../../views/{$this->theme}.php";
     }
 
+    /**
+     * @param string $view
+     * @param array $data
+     */
     public function viewTemplate(string $view, array $data = [])
     {
         /**
@@ -86,9 +147,12 @@ class Controller
          * pega desta forma: $chave, somente que já irá imprimir "valor"
          */
         extract($data);
-        include "views/{$view}.php";
+        include __DIR__ . "/../../views/{$view}.php";
     }
 
+    /**
+     * @param string $guard
+     */
     protected function auth($guard = "users")
     {
         switch ($guard) {
@@ -107,6 +171,10 @@ class Controller
         }
     }
 
+    /**
+     * @param $request
+     * @return bool
+     */
     protected function required($request)
     {
         foreach ($this->required as $field) {

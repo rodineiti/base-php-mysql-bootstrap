@@ -1,9 +1,4 @@
 <div class="container login">
-    <?php if (isset($_GET["error"])): ?>
-    <div class="alert alert-danger">
-        Usuário e/ou Senha errados!
-    </div>
-    <?php endif; ?>
     <h1>Login Admin</h1>
     <form method="POST" action="<?= BASE_URL?>admin/login">
         <div class="form-group">

@@ -9,12 +9,14 @@ class AdminController extends Controller
 {
     protected $user;
     protected $data;
+    protected $required;
 
     public function __construct()
     {
         parent::__construct("admin/template");
         $this->user = new User();
         $this->data = array();
+        $this->required = ["email", "password"];
     }
 
     public function index()
@@ -40,42 +42,58 @@ class AdminController extends Controller
 
     public function login()
     {
-        if(isset($_POST["email"]) && !empty($_POST["email"])) {
-            $email = addslashes($_POST["email"]);
-            $password = $_POST["password"];
-
-            $user = $this->user->attempt($email, $password);
-
-            if (!$user) {
-                header("Location: " . BASE_URL . "admin?login&error=true");
-                exit;
-            }
-
-            $this->user->setSession($user);
-
-            setFlashMessage("success", ["Bem vindo " . auth("admins")->name]);
-            header("Location: " . BASE_URL . "admin/home");
-            exit;
+        if ($this->method() !== "POST") {
+            setFlashMessage("danger", ["Método não permitido"]);
+            $this->redirect("admin?login");
         }
 
-        header("Location: " . BASE_URL . "admin?login&error=true");
-        exit;
+        $request = filter_var_array($this->request(), FILTER_SANITIZE_STRIPPED);
+
+        if (!$this->required($request)) {
+            setFlashMessage("danger", ["Favor, informar seu e-mail e senha"]);
+            $this->redirect("admin?login");
+        }
+
+        $email = $request["email"];
+        $password = $request["password"];
+
+        $user = $this->user->attempt($email, $password);
+
+        if (!$user) {
+            setFlashMessage("danger", ["Usuário e/ou Senha errados!"]);
+            $this->redirect("admin?login");
+        }
+
+        $this->user->setSession($user);
+
+        setFlashMessage("success", ["Bem vindo " . auth("admins")->name]);
+        $this->redirect("admin/home");
     }
 
     public function update()
     {
-        if($_POST) {
-            if (!$this->user->updateProfile(auth("admins")->id, $_POST)) {
-                header("Location: " . BASE_URL . "admin/profile?error=fields");
-                exit;
-            } else {
-                header("Location: " . BASE_URL . "admin/profile?success=true");
-                exit;
-            }
+        if ($this->method() !== "POST") {
+            setFlashMessage("danger", ["Método não permitido"]);
+            $this->redirect("admin/profile");
         }
 
-        header("Location: " . BASE_URL . "admin/profile?error=fields");
-        exit;
+        $request = filter_var_array($this->request(), FILTER_SANITIZE_STRIPPED);
+
+        $this->required = ["name"];
+        if (!$this->required($request)) {
+            setFlashMessage("danger", ["Favor, informar o nome"]);
+            $this->redirect("admin/profile");
+        }
+
+        $user = $this->user->updateProfile(auth("admins")->id, $request);
+        if (!$user) {
+            setFlashMessage("danger", ["Favor preencher todos os campos"]);
+            $this->redirect("admin/profile");
+        } else {
+            $this->user->setSession($user);
+            setFlashMessage("success", ["Dados atualizados com sucesso"]);
+            $this->redirect("admin/profile");
+        }
     }
 
     public function logout()

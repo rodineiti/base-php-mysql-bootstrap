@@ -12,29 +12,9 @@ class User extends Model
         parent::__construct("users");
     }
 
-    public function all($filters = [], $limit = null, $offset = null)
-    {
-        $query = "SELECT * FROM users ";
-
-        $where = $this->buildWhere($filters);
-        $query .= " WHERE " . implode(" AND ", $where);
-
-        if ($limit) {
-            $query .= " LIMIT {$limit} ";
-        }
-
-        if ($offset) {
-            $query .= " OFFSET {$offset} ";
-        }
-
-        $results = $this->customQuery($query) ?? [];
-
-        return $results;
-    }
-
     public function attempt($email, $password)
     {
-        $user = $this->read(false, ["*"], ["email" => $email]);
+        $user = $this->select()->where("email", "=", $email)->get();
 
         if (!$user) {
             return false;
@@ -64,10 +44,12 @@ class User extends Model
     public function create(array $data)
     {
         if (!filter_var($data["email"], FILTER_VALIDATE_EMAIL)) {
+            setFlashMessage("danger", ["Favor, informar um e-mail válido"]);
             return false;
         }
 
         if ($this->exists("email", $data["email"])) {
+            setFlashMessage("danger", ["Este e-mail já está em uso, favor verificar"]);
             return false;
         }
 
@@ -99,10 +81,12 @@ class User extends Model
         }
 
         if (isset($data["email"]) && !filter_var($data["email"], FILTER_VALIDATE_EMAIL)) {
+            setFlashMessage("danger", ["Favor, informar um e-mail válido"]);
             return false;
         }
 
         if (isset($data["email"]) && $this->exists("email", $data["email"], $id)) {
+            setFlashMessage("danger", ["Este e-mail já está em uso, favor verificar"]);
             return false;
         }
 
@@ -110,7 +94,7 @@ class User extends Model
 
         if (count($data)) {
             if ($this->update($data, ["id" => $id])) {
-                $user = $this->read(false, ["*"], ["id" => $id]);
+                $user = $this->getById($id);
                 return $user;
             }
         }
@@ -121,26 +105,19 @@ class User extends Model
     public function exists($field, $value, $id = null)
     {
         if ($id) {
-            return $this->read(false, ["*"], [$field => $value], ["id", "NOT IN", [$id]]);
+            return $this->select()->where($field, "=", $value)->whereNotIn("id", [$id])->get();
         }
 
-        return $this->read(false, ["*"], [$field => $value]);
+        return $this->select()->where($field, "=", $value)->get();
     }
 
     public function destroy($id)
     {
-        return $this->delete(["id" => $id]);
-    }
-
-    private function buildWhere($filters = [])
-    {
-        $where = [];
-
-        if (!empty($filters["searchTerm"])) {
-            $where[] = "(users.name LIKE '%" . $filters["searchTerm"] . "%' OR users.email LIKE '%" . $filters["searchTerm"] . "%') ";
+        if ($id === auth()->id) {
+            return false;
         }
 
-        return $where;
+        return $this->delete(["id" => $id]);
     }
 }
 

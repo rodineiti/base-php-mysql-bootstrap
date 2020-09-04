@@ -5,7 +5,7 @@
 
 Clone the repository
 
-    git clone git@github.com:rodineiti/base-php-mysql-bootstrap.git base
+    git clone git@gitlab.com:rodineiti/base-php-mysql-bootstrap.git base
 
 Switch to the repo folder
 
@@ -53,6 +53,113 @@ IMPORTANT
     add only: "admin/users/edit"
 
 ![image](https://user-images.githubusercontent.com/25492122/90270781-25f81300-de31-11ea-9514-2b10ebe3b9e4.png)
+
+
+#### Selects
+```php
+<?php
+use Src\Models\User;
+
+// get one with where - alternative find one
+$model = new User();
+$user = $model->select(["id", "name"])->where("name", "=", "Fulano")->get();
+
+var_dump($user);
+
+// get all with get - alternative find all
+$model = new User();
+$users = $model->select()->get(true);
+
+var_dump($users);
+```
+
+#### findById
+
+```php
+<?php
+use Src\Models\User;
+
+$model = new User();
+$user = $model->getById(2);
+echo $user->name;
+```
+
+#### count
+
+```php
+<?php
+use Src\Models\User;
+$model = new User();
+
+$count = $model->select()->count();
+```
+
+#### wheres
+```php
+<?php
+use Src\Models\User;
+$model = new User();
+
+// find with where
+$users = $model
+    ->select()
+    ->where("id", ">", 1)
+    ->where("name", "=", "teste")
+    ->get(true);
+
+var_dump($users);
+
+$model = new User();
+// find with whereRaw
+$users = $model
+    ->select()
+    ->whereRaw("name LIKE '%fulano%' ")
+    ->get(true);
+
+var_dump($users);
+
+$model = new User();
+// find with whereIn
+$users = $model
+    ->select()
+    ->whereIn("id", [1,2])
+    ->get(true);
+
+var_dump($users);
+```
+
+#### joins
+```php
+<?php
+use Src\Models\User;
+
+$model = new User();
+// find with join address
+$users = $model
+    ->select()
+    ->join("address", "user_id", "id")
+    ->get(true);
+
+var_dump($users);
+
+$model = new User();
+// find with left join address
+$users = $model
+    ->select()
+    ->leftJoin("address", "user_id", "id")
+    ->get(true);
+
+var_dump($users);
+
+$model = new User();
+// find with right join address
+$users = $model
+    ->select()
+    ->rightJoin("address", "user_id", "id")
+    ->get(true);
+
+var_dump($users);
+```
 
 
 

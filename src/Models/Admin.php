@@ -12,15 +12,9 @@ class Admin extends Model
         parent::__construct("admins");
     }
 
-    public function all($where = [], $whereIn = [])
-    {
-        $users = $this->read(true, ["*"], $where, $whereIn) ?? [];
-        return $users;
-    }
-
     public function attempt($email, $password)
     {
-        $user = $this->read(false, ["*"], ["email" => $email]);
+        $user = $this->select()->where("email", "=", $email)->get();
 
         if (!$user) {
             return false;
@@ -50,10 +44,12 @@ class Admin extends Model
     public function create(array $data)
     {
         if (!filter_var($data["email"], FILTER_VALIDATE_EMAIL)) {
+            setFlashMessage("danger", ["Favor, informar um e-mail válido"]);
             return false;
         }
 
         if ($this->exists("email", $data["email"])) {
+            setFlashMessage("danger", ["Este e-mail já está em uso, favor verificar"]);
             return false;
         }
 
@@ -89,10 +85,12 @@ class Admin extends Model
         }
 
         if (isset($newData["email"]) && !filter_var($newData["email"], FILTER_VALIDATE_EMAIL)) {
+            setFlashMessage("danger", ["Favor, informar um e-mail válido"]);
             return false;
         }
 
         if (isset($newData["email"]) && $this->exists("email", $newData["email"], $id)) {
+            setFlashMessage("danger", ["Este e-mail já está em uso, favor verificar"]);
             return false;
         }
 
@@ -100,7 +98,7 @@ class Admin extends Model
 
         if (count($newData)) {
             if ($this->update($newData, ["id" => $id])) {
-                $user = $this->read(false, ["*"], ["id" => $id]);
+                $user = $this->getById($id);
                 return $user;
             }
         }
@@ -108,13 +106,22 @@ class Admin extends Model
         return false;
     }
 
-    private function exists($field, $value, $id = null)
+    public function exists($field, $value, $id = null)
     {
         if ($id) {
-            return $this->read(false, ["*"], [$field => $value], ["id", "NOT IN", [$id]]);
+            return $this->select()->where($field, "=", $value)->whereNotIn("id", [$id])->get();
         }
 
-        return $this->read(false, ["*"], [$field => $value]);
+        return $this->select()->where($field, "=", $value)->get();
+    }
+
+    public function destroy($id)
+    {
+        if ($id === auth("admins")->id) {
+            return false;
+        }
+
+        return $this->delete(["id" => $id]);
     }
 }
 

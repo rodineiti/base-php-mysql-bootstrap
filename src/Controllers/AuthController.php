@@ -9,12 +9,14 @@ class AuthController extends Controller
 {
     protected $user;
     protected $data;
+    protected $required;
 
     public function __construct()
     {
         parent::__construct();
         $this->user = new User();
         $this->data = array();
+        $this->required = ["name", "email", "password"];
     }
 
     public function index()
@@ -35,91 +37,93 @@ class AuthController extends Controller
     public function login()
     {
         if ($this->method() !== "POST") {
-            header("Location: " . BASE_URL . "auth?login&error=true");
-            exit;
+            setFlashMessage("danger", ["Método não permitido"]);
+            $this->redirect("auth?login");
         }
 
         $request = filter_var_array($this->request(), FILTER_SANITIZE_STRIPPED);
 
-        if(isset($request["email"]) && !empty($request["email"])) {
-            $email = $request["email"];
-            $password = $request["password"];
-
-            $user = $this->user->attempt($email, $password);
-
-            if (!$user) {
-                header("Location: " . BASE_URL . "auth?login&error=true");
-                exit;
-            }
-
-            $this->user->setSession($user);
-
-            setFlashMessage("success", ["Bem vindo " . auth()->name]);
-            header("Location: " . BASE_URL . "auth/profile");
-            exit;
+        $this->required = ["email", "password"];
+        if (!$this->required($request)) {
+            setFlashMessage("danger", ["Favor, informar seu e-mail e senha"]);
+            $this->redirect("auth?login");
         }
 
-        header("Location: " . BASE_URL . "auth?login&error=true");
-        exit;
+        $email = $request["email"];
+        $password = $request["password"];
+
+        $user = $this->user->attempt($email, $password);
+
+        if (!$user) {
+            setFlashMessage("danger", ["Usuário e/ou Senha errados!"]);
+            $this->redirect("auth?login");
+        }
+
+        $this->user->setSession($user);
+
+        setFlashMessage("success", ["Bem vindo " . auth()->name]);
+        $this->redirect("auth/profile");
     }
 
     public function save()
     {
         if ($this->method() !== "POST") {
-            header("Location: " . BASE_URL . "auth/register?error=fields");
-            exit;
+            setFlashMessage("danger", ["Método não permitido"]);
+            $this->redirect("auth/register");
         }
 
         $request = filter_var_array($this->request(), FILTER_SANITIZE_STRIPPED);
+        setInput("name", $request["name"] ?? null);
+        setInput("email", $request["email"] ?? null);
 
-        if(isset($request["name"]) && !empty($request["name"])) {
-            $data["name"] = $request["name"];
-            $data["email"] = $request["email"];
-            $data["password"] = $request["password"];
-
-            if (empty($data["name"]) || empty($data["email"]) || empty($data["password"])) {
-                header("Location: " . BASE_URL . "auth/register?error=fields");
-                exit;
-            }
-
-            $user = $this->user->create($data);
-
-            if (!$user) {
-                header("Location: " . BASE_URL . "auth/register?error=exists");
-                exit;
-            }
-
-            header("Location: " . BASE_URL . "auth/register?success=true");
-            exit;
+        if (!$this->required($request)) {
+            setFlashMessage("danger", ["Favor, preencher todos os campos"]);
+            $this->redirect("auth/register");
         }
 
-        header("Location: " . BASE_URL . "auth/register?error=fields");
-        exit;
+        $data["name"] = $request["name"];
+        $data["email"] = $request["email"];
+        $data["password"] = $request["password"];
+
+        $user = $this->user->create($data);
+
+        if (!$user) {
+            $this->redirect("auth/register");
+        }
+
+        $this->user->setSession($user);
+
+        clearInput("name"); // clear input
+        clearInput("email"); // clear input
+
+        setFlashMessage("success", ["Bem vindo " . auth()->name]);
+        $this->redirect("auth/profile");
     }
 
     public function update()
     {
         if ($this->method() !== "POST") {
-            header("Location: " . BASE_URL . "auth/profile?error=fields");
-            exit;
+            setFlashMessage("danger", ["Método não permitido"]);
+            $this->redirect("auth/profile");
         }
 
         $request = filter_var_array($this->request(), FILTER_SANITIZE_STRIPPED);
 
-        if($request) {
-            $user = $this->user->updateProfile(auth()->id, $request);
-            if (!$user) {
-                header("Location: " . BASE_URL . "auth/profile?error=fields");
-                exit;
-            } else {
-                $this->user->setSession($user);
-                header("Location: " . BASE_URL . "auth/profile?success=true");
-                exit;
-            }
+        $this->required = ["name"];
+        if (!$this->required($request)) {
+            setFlashMessage("danger", ["Favor, informar o nome"]);
+            $this->redirect("auth/profile");
         }
 
-        header("Location: " . BASE_URL . "auth/profile?error=fields");
-        exit;
+        $user = $this->user->updateProfile(auth()->id, $request);
+        if (!$user) {
+            setFlashMessage("danger", ["Favor preencher todos os campos"]);
+            $this->redirect("auth/profile");
+        } else {
+            $this->user->setSession($user);
+            setFlashMessage("success", ["Dados atualizados com sucesso"]);
+            $this->redirect("auth/profile");
+        }
     }
 
     public function logout()
