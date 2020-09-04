@@ -2,8 +2,16 @@
 
 namespace Src\Support;
 
+/**
+ * Class Jwt
+ * @package Src\Support
+ */
 class Jwt
 {
+    /**
+     * @param $data
+     * @return string
+     */
     public static function generate($data)
     {
         $header = json_encode(array("typ"=>"JWT", "alg"=>"HS256"));
@@ -21,10 +29,14 @@ class Jwt
         return $jwt;
     }
 
+    /**
+     * @param $token
+     * @return array|bool|mixed
+     */
     public static function validate($token)
     {
-        // Passo 1: Verificar se o TOKEN tem 3 partes.
-        // Passo 2: Bater a assinatura com os dados
+        // Step 1: Check if the TOKEN has 3 parts.
+        // Step 2: Hit the signature with the data
         $array = array();
 
         $jwt_split = explode('.', $token);
@@ -45,11 +57,19 @@ class Jwt
         }
     }
 
-    private static function base64url_encode( $data ){
+    /**
+     * @param $data
+     * @return string
+     */
+    private static function base64url_encode($data ){
         return rtrim( strtr( base64_encode( $data ), '+/', '-_'), '=');
     }
 
-    private static function base64url_decode( $data ){
+    /**
+     * @param $data
+     * @return false|string
+     */
+    private static function base64url_decode($data ){
         return base64_decode( strtr( $data, '-_', '+/') . str_repeat('=', 3 - ( 3 + strlen( $data )) % 4 ));
     }
 }

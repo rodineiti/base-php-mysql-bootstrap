@@ -269,7 +269,7 @@ function flashMessage($type = "errors")
 {
     /**
      * Example
-     * Session::set("errors", ["status" => "danger", "messages" => ["teste1","teste2","teste3"]]);
+     * Session::set("errors", ["status" => "danger", "messages" => ["test1","test2","test3"]]);
      */
     if (\Src\Support\Session::has($type)) {
         $flash = \Src\Support\Session::get($type);

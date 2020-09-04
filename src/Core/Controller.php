@@ -116,9 +116,9 @@ class Controller
     {
         /**
          * extract
-         * transforma um array em variáveis, pode acessar diretamente o nome da chave no array
-         * exemplo: $data = ["chave" => "valor]
-         * pega desta forma: $chave, somente que já irá imprimir "valor"
+         * transforms an array into variables, you can directly access the key name in the array
+         * example: $data = ["key" => "value"]
+         * take it this way: $key, only that it will already print "value"
          */
 
         extract($data);
@@ -142,9 +142,9 @@ class Controller
     {
         /**
          * extract
-         * transforma um array em variáveis, pode acessar diretamente o nome da chave no array
-         * exemplo: $data = ["chave" => "valor]
-         * pega desta forma: $chave, somente que já irá imprimir "valor"
+         * transforms an array into variables, you can directly access the key name in the array
+         * example: $data = ["key" => "value"]
+         * take it this way: $key, only that it will already print "value"
          */
         extract($data);
         include __DIR__ . "/../../views/{$view}.php";

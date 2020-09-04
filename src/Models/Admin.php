@@ -5,13 +5,25 @@ namespace Src\Models;
 use Src\Core\Model;
 use Src\Support\Session;
 
+/**
+ * Class Admin
+ * @package Src\Models
+ */
 class Admin extends Model
 {
+    /**
+     * Admin constructor.
+     */
     public function __construct()
     {
         parent::__construct("admins");
     }
 
+    /**
+     * @param $email
+     * @param $password
+     * @return array|bool|mixed|null
+     */
     public function attempt($email, $password)
     {
         $user = $this->select()->where("email", "=", $email)->get();
@@ -31,16 +43,26 @@ class Admin extends Model
         return $user;
     }
 
+    /**
+     * @param $user
+     */
     public function setSession($user)
     {
         Session::set("userLoggedAdmin", (object)$user);
     }
 
+    /**
+     *
+     */
     public function destroySession()
     {
         Session::destroy("userLoggedAdmin");
     }
 
+    /**
+     * @param array $data
+     * @return bool|string|null
+     */
     public function create(array $data)
     {
         if (!filter_var($data["email"], FILTER_VALIDATE_EMAIL)) {
@@ -59,6 +81,11 @@ class Admin extends Model
         return $user;
     }
 
+    /**
+     * @param $id
+     * @param array $columns
+     * @return array|mixed|null
+     */
     public function getById($id, $columns = ["*"])
     {
         $user = $this->findById($id, $columns);
@@ -69,6 +96,11 @@ class Admin extends Model
         return null;
     }
 
+    /**
+     * @param $id
+     * @param array $data
+     * @return array|bool|mixed|null
+     */
     public function updateProfile($id, array $data)
     {
         $newData = array();
@@ -106,6 +138,12 @@ class Admin extends Model
         return false;
     }
 
+    /**
+     * @param $field
+     * @param $value
+     * @param null $id
+     * @return array|mixed|null
+     */
     public function exists($field, $value, $id = null)
     {
         if ($id) {
@@ -115,6 +153,10 @@ class Admin extends Model
         return $this->select()->where($field, "=", $value)->get();
     }
 
+    /**
+     * @param $id
+     * @return bool
+     */
     public function destroy($id)
     {
         if ($id === auth("admins")->id) {

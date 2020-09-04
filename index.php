@@ -1,5 +1,5 @@
 <?php
-ob_start(); // controlar o cache da aplicação para ter apenas 1 output
+ob_start(); // control the application cache to have only 1 output
 
 session_start();
 
@@ -11,4 +11,4 @@ require "helpers.php";
 
 (new Src\Core\Core())->run();
 
-ob_end_flush(); // envia o output e limpa o cache
+ob_end_flush(); // send the output and clear the cache

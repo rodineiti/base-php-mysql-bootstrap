@@ -32,17 +32,17 @@ class Core
             $url = explode("/", $url);
 
             if ($admin && count($url) >= 4) {
-                array_shift($url); // remove o primeiro item
+                array_shift($url); // remove first item
             }
 
-            array_shift($url); // remove o primeiro item
+            array_shift($url); // remove first item
 
             $controler = ucwords(strtolower($url[0]))."Controller";
-            array_shift($url); // remove o primeiro item
+            array_shift($url); // remove first item
 
             if (isset($url[0]) && !empty($url[0])) {
                 $action = $url[0];
-                array_shift($url); // remove o primeiro item
+                array_shift($url); // remove first item
             } else {
                 $action = "index";
             }
@@ -70,7 +70,7 @@ class Core
 
 
         $controler = $prefix.$controler;
-        // exucuta a função da controller junto com os parametros
+        // perform the function of the controller along with the parameters
         call_user_func_array([new $controler(), $action], $params);
     }
 }
