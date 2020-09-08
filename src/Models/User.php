@@ -26,7 +26,7 @@ class User extends Model
      */
     public function attempt($email, $password)
     {
-        $user = $this->select()->where("email", "=", $email)->get();
+        $user = $this->select()->where("email", "=", $email)->first();
 
         if (!$user) {
             return false;
@@ -143,10 +143,10 @@ class User extends Model
     public function exists($field, $value, $id = null)
     {
         if ($id) {
-            return $this->select()->where($field, "=", $value)->whereNotIn("id", [$id])->get();
+            return $this->select()->where($field, "=", $value)->whereNotIn("id", [$id])->first();
         }
 
-        return $this->select()->where($field, "=", $value)->get();
+        return $this->select()->where($field, "=", $value)->first();
     }
 
     /**

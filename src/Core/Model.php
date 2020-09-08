@@ -70,11 +70,21 @@ class Model
 
     /**
      * @param array $columns
-     * @return $this
+     * @return Model
      */
-    public function select(array $columns = ["*"])
+    public function select(array $columns = ["*"]): Model
     {
         $this->query = "SELECT " . implode(",", $columns) . " FROM " . $this->table;
+        return $this;
+    }
+
+    /**
+     * @param string $select
+     * @return Model
+     */
+    public function selectRaw(string $select): Model
+    {
+        $this->query = "SELECT " . $select . " FROM " . $this->table;
         return $this;
     }
 
@@ -85,14 +95,13 @@ class Model
      */
     public function findById($id, $columns = ["*"])
     {
-        return $this->select($columns)->where("id", "=", $id)->get();
+        return $this->select($columns)->where("id", "=", $id)->first();
     }
 
     /**
-     * @param bool $all
-     * @return array|mixed|null
+     * @return mixed|null
      */
-    public function get(bool $all = false)
+    public function first()
     {
         try {
 
@@ -106,7 +115,31 @@ class Model
                 return null;
             }
 
-            return ($all ? $stmt->fetchAll(\PDO::FETCH_OBJ) : $stmt->fetchObject());
+            return $stmt->fetchObject();
+        } catch (\PDOException $exception) {
+            $this->error = $exception;
+            return null;
+        }
+    }
+
+    /**
+     * @return array|null
+     */
+    public function all()
+    {
+        try {
+
+            $this->clauseJoins();
+            $this->clauseWhere();
+
+            $stmt = $this->db->prepare($this->query . $this->order . $this->limit . $this->offset);
+            $stmt->execute($this->params);
+
+            if (!$stmt->rowCount()) {
+                return null;
+            }
+
+            return $stmt->fetchAll(\PDO::FETCH_OBJ);
         } catch (\PDOException $exception) {
             $this->error = $exception;
             return null;

@@ -5,7 +5,7 @@
 
 Clone the repository
 
-    git clone git@gitlab.com:rodineiti/base-php-mysql-bootstrap.git base
+    git clone https://github.com/rodineiti/base-php-mysql-bootstrap.git base
 
 Switch to the repo folder
 
@@ -62,13 +62,13 @@ use Src\Models\User;
 
 // get one with where - alternative find one
 $model = new User();
-$user = $model->select(["id", "name"])->where("name", "=", "Fulano")->get();
+$user = $model->select(["id", "name"])->where("name", "=", "Fulano")->fisrt();
 
 var_dump($user);
 
 // get all with get - alternative find all
 $model = new User();
-$users = $model->select()->get(true);
+$users = $model->select()->all();
 
 var_dump($users);
 ```
@@ -105,7 +105,7 @@ $users = $model
     ->select()
     ->where("id", ">", 1)
     ->where("name", "=", "teste")
-    ->get(true);
+    ->all();
 
 var_dump($users);
 
@@ -114,7 +114,7 @@ $model = new User();
 $users = $model
     ->select()
     ->whereRaw("name LIKE '%fulano%' ")
-    ->get(true);
+    ->all();
 
 var_dump($users);
 
@@ -123,7 +123,7 @@ $model = new User();
 $users = $model
     ->select()
     ->whereIn("id", [1,2])
-    ->get(true);
+    ->all();
 
 var_dump($users);
 ```
@@ -138,7 +138,7 @@ $model = new User();
 $users = $model
     ->select()
     ->join("address", "user_id", "id")
-    ->get(true);
+    ->all();
 
 var_dump($users);
 
@@ -147,7 +147,7 @@ $model = new User();
 $users = $model
     ->select()
     ->leftJoin("address", "user_id", "id")
-    ->get(true);
+    ->all();
 
 var_dump($users);
 
@@ -156,7 +156,7 @@ $model = new User();
 $users = $model
     ->select()
     ->rightJoin("address", "user_id", "id")
-    ->get(true);
+    ->all();
 
 var_dump($users);
 ```
