@@ -138,6 +138,7 @@ function check_url()
         "admin/login",
         "admin/profile",
         "admin/update",
+        "admin/users",
     ];
 }
 

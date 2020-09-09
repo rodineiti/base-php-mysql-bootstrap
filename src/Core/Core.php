@@ -19,7 +19,7 @@ class Core
         $prefix = "\Src\Controllers\\";
         $admin = false;
 
-        if (!empty($url) && $url !== "/" && (in_array(substr($url, 1), check_url()) || count(explode("/", $url)) > 4)) {
+        if (!empty($url) && $url !== "/" && (in_array(substr($url, 1), check_url()) || count(explode("/", $url)) >= 4)) {
             $prefix = "\Src\Controllers\\Admin\\";
             $admin = true;
         }

@@ -126,8 +126,7 @@ class User extends Model
 
         if (count($data)) {
             if ($this->update($data, ["id" => $id])) {
-                $user = $this->getById($id);
-                return $user;
+                return $this->getById($id);
             }
         }
 
