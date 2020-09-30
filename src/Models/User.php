@@ -108,8 +108,13 @@ class User extends Model
      */
     public function updateProfile($id, array $data)
     {
+        $newData = [];
+        if (!empty($data["name"])) {
+            $newData["name"] = $data["name"];
+        }
+
         if (!empty($data["password"])) {
-            $data["password"] = pwd_gen_hash($data["password"]);
+            $newData["password"] = pwd_gen_hash($data["password"]);
         }
 
         if (isset($data["email"]) && !filter_var($data["email"], FILTER_VALIDATE_EMAIL)) {
@@ -122,15 +127,13 @@ class User extends Model
             return false;
         }
 
-        unset($data["email"]);
-
-        if (count($data)) {
-            if ($this->update($data, ["id" => $id])) {
+        if (count($newData)) {
+            if ($this->update($newData, ["id" => $id])) {
                 return $this->getById($id);
             }
         }
 
-        return false;
+        return $this->getById($id);
     }
 
     /**

@@ -1,6 +1,6 @@
 <div class="container profile">
     <h1>Editar perfil</h1>
-    <form method="POST" action="<?= BASE_URL ?>auth/update">
+    <form method="POST" action="<?= route("profile") ?>">
         <div class="form-group">
             <label for="name">Nome:</label>
             <input type="text" name="name" id="name" class="form-control" value="<?=auth()->name?>" required />

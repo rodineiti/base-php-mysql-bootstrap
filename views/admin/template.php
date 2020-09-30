@@ -10,15 +10,15 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light mb-2">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a href="<?= BASE_URL . "admin/home" ?>" class="navbar-brand"><?=SITE_NAME?></a>
+            <a href="<?= route("admin.login"); ?>" class="navbar-brand"><?=SITE_NAME?></a>
         </div>
         <ul class="nav navbar-nav navbar-right">
             <?php if(auth("admins")): ?>
                 <li class="dropdown mr-2">
                     <a class="nav-item nav-link dropdown-toggle" data-toggle="dropdown" href="javascript:;"><?=auth("admins")->name?></a>
                     <ul class="dropdown-menu">
-                        <li><a class="nav-item nav-link" href="<?= BASE_URL ?>admin/profile"><?=auth("admins")->name?></a></li>
-                        <li><a class="nav-item nav-link" href="<?= BASE_URL ?>admin/logout">Sair</a></li>
+                        <li><a class="nav-item nav-link" href="<?= route("admin.profile"); ?>"><?=auth("admins")->name?></a></li>
+                        <li><a class="nav-item nav-link" href="<?= route("admin.logout"); ?>">Sair</a></li>
                     </ul>
                 </li>
             <?php endif; ?>

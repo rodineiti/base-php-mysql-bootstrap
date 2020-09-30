@@ -36,17 +36,12 @@ class AuthController extends Controller
 
     public function login()
     {
-        if ($this->method() !== "POST") {
-            setFlashMessage("danger", ["Método não permitido"]);
-            $this->redirect("auth?login");
-        }
-
-        $request = filter_var_array($this->request(), FILTER_SANITIZE_STRIPPED);
+        $request = filter_var_array($this->request()->all(), FILTER_SANITIZE_STRIPPED);
 
         $this->required = ["email", "password"];
         if (!$this->required($request)) {
             setFlashMessage("danger", ["Favor, informar seu e-mail e senha"]);
-            $this->redirect("auth?login");
+            return back_route();
         }
 
         $email = $request["email"];
@@ -56,29 +51,24 @@ class AuthController extends Controller
 
         if (!$user) {
             setFlashMessage("danger", ["Usuário e/ou Senha errados!"]);
-            $this->redirect("auth?login");
+            return back_route();
         }
 
         $this->user->setSession($user);
 
         setFlashMessage("success", ["Bem vindo " . auth()->name]);
-        $this->redirect("auth/profile");
+        return back_route(route("profile"));
     }
 
     public function save()
     {
-        if ($this->method() !== "POST") {
-            setFlashMessage("danger", ["Método não permitido"]);
-            $this->redirect("auth/register");
-        }
-
-        $request = filter_var_array($this->request(), FILTER_SANITIZE_STRIPPED);
+        $request = filter_var_array($this->request()->all(), FILTER_SANITIZE_STRIPPED);
         setInput("name", $request["name"] ?? null);
         setInput("email", $request["email"] ?? null);
 
         if (!$this->required($request)) {
             setFlashMessage("danger", ["Favor, preencher todos os campos"]);
-            $this->redirect("auth/register");
+            return back_route();
         }
 
         $data["name"] = $request["name"];
@@ -88,7 +78,7 @@ class AuthController extends Controller
         $user = $this->user->create($data);
 
         if (!$user) {
-            $this->redirect("auth/register");
+            return back_route();
         }
 
         $this->user->setSession($user);
@@ -97,39 +87,33 @@ class AuthController extends Controller
         clearInput("email"); // clear input
 
         setFlashMessage("success", ["Bem vindo " . auth()->name]);
-        $this->redirect("auth/profile");
+        return back_route(route("profile"));
     }
 
     public function update()
     {
-        if ($this->method() !== "POST") {
-            setFlashMessage("danger", ["Método não permitido"]);
-            $this->redirect("auth/profile");
-        }
-
-        $request = filter_var_array($this->request(), FILTER_SANITIZE_STRIPPED);
+        $request = filter_var_array($this->request()->all(), FILTER_SANITIZE_STRIPPED);
 
         $this->required = ["name"];
         if (!$this->required($request)) {
             setFlashMessage("danger", ["Favor, informar o nome"]);
-            $this->redirect("auth/profile");
+            return back_route();
         }
 
         $user = $this->user->updateProfile(auth()->id, $request);
         if (!$user) {
             setFlashMessage("danger", ["Favor preencher todos os campos"]);
-            $this->redirect("auth/profile");
+            return back_route(route("profile"));
         } else {
             $this->user->setSession($user);
             setFlashMessage("success", ["Dados atualizados com sucesso"]);
-            $this->redirect("auth/profile");
+            return back_route(route("profile"));
         }
     }
 
     public function logout()
     {
-        session_start();
         $this->user->destroySession();
-        header("Location: " . BASE_URL);
+        return back_route(route("home"));
     }
 }

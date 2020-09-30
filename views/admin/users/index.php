@@ -4,7 +4,7 @@
             <?=$this->view("admin/menu");?>
         </div>
         <div class="col-md-9">
-            <a href="<?= BASE_URL . "admin/users/create"; ?>" class="btn btn-primary mb-2">Adicionar</a>
+            <a href="<?= route("admin.users.create"); ?>" class="btn btn-primary mb-2">Adicionar</a>
             <?php if (isset($_GET["error"])): ?>
                 <div class="alert alert-danger">
                     Opss. Ocorreu um erro no processamento, tente mais tarde.
@@ -28,8 +28,8 @@
                         <td><?= $user->email ?></td>
                         <td><?= $user->created_at ?></td>
                         <td>
-                            <a href="<?= BASE_URL . "admin/users/edit/" . $user->id; ?>" class="btn btn-info">Editar</a>
-                            <a href="<?= BASE_URL . "admin/users/destroy/" . $user->id; ?>" class="btn btn-danger">Deletar</a>
+                            <a href="<?= route("admin.users.edit", ["id" => $user->id]); ?>" class="btn btn-info">Editar</a>
+                            <a href="<?= route("admin.users.destroy", ["id" => $user->id]); ?>" class="btn btn-danger">Deletar</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

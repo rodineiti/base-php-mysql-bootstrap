@@ -6,6 +6,6 @@
     <p>Está é a home do template, onde poderá utilizar para ser a página principal do seu site.</p>
     <?php if (!auth()): ?>
         <p>Logo abaixo você poderá acessar a parte Administrativa do template.</p>
-        <a class="btn btn-primary btn-lg" href="<?= BASE_URL . "admin"; ?>" role="button">Acessar Admin</a>
+        <a class="btn btn-primary btn-lg" href="<?= route("admin.login"); ?>" role="button">Acessar Admin</a>
     <?php endif; ?>
 </div>

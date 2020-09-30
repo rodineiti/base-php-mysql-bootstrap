@@ -21,18 +21,7 @@ class AdminController extends Controller
 
     public function index()
     {
-        if (auth("admins")) {
-            $this->home();
-        } else {
-            $this->template("admin/login");
-        }
-    }
-
-    public function home()
-    {
-        $this->auth("admins");
-
-        $this->template("admin/home", $this->data);
+        $this->template("admin/login");
     }
 
     public function profile()
@@ -42,16 +31,11 @@ class AdminController extends Controller
 
     public function login()
     {
-        if ($this->method() !== "POST") {
-            setFlashMessage("danger", ["Método não permitido"]);
-            $this->redirect("admin?login");
-        }
-
-        $request = filter_var_array($this->request(), FILTER_SANITIZE_STRIPPED);
+        $request = filter_var_array($this->request()->all(), FILTER_SANITIZE_STRIPPED);
 
         if (!$this->required($request)) {
             setFlashMessage("danger", ["Favor, informar seu e-mail e senha"]);
-            $this->redirect("admin?login");
+            return back_route();
         }
 
         $email = $request["email"];
@@ -61,45 +45,39 @@ class AdminController extends Controller
 
         if (!$user) {
             setFlashMessage("danger", ["Usuário e/ou Senha errados!"]);
-            $this->redirect("admin?login");
+            return back_route();
         }
 
         $this->user->setSession($user);
 
         setFlashMessage("success", ["Bem vindo " . auth("admins")->name]);
-        $this->redirect("admin/home");
+        return back_route(route("admin.home"));
     }
 
     public function update()
     {
-        if ($this->method() !== "POST") {
-            setFlashMessage("danger", ["Método não permitido"]);
-            $this->redirect("admin/profile");
-        }
-
-        $request = filter_var_array($this->request(), FILTER_SANITIZE_STRIPPED);
+        $request = filter_var_array($this->request()->all(), FILTER_SANITIZE_STRIPPED);
 
         $this->required = ["name"];
         if (!$this->required($request)) {
             setFlashMessage("danger", ["Favor, informar o nome"]);
-            $this->redirect("admin/profile");
+            return back_route();
         }
 
         $user = $this->user->updateProfile(auth("admins")->id, $request);
         if (!$user) {
             setFlashMessage("danger", ["Favor preencher todos os campos"]);
-            $this->redirect("admin/profile");
+            return back_route();
         } else {
             $this->user->setSession($user);
             setFlashMessage("success", ["Dados atualizados com sucesso"]);
-            $this->redirect("admin/profile");
+            return back_route();
         }
     }
 
     public function logout()
     {
-        session_start();
         $this->user->destroySession();
-        header("Location: " . BASE_URL . "admin?login");
+        return back_route(route("admin.login"));
     }
 }

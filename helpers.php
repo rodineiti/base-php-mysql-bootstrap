@@ -1,5 +1,37 @@
 <?php
 
+use Src\Router\Route;
+use Src\Router\Request;
+
+function request() {
+    return new Request;
+}
+
+function resolve($request = null) {
+    if (is_null($request)) {
+        $request = request();
+    }
+    return Route::resolve($request);
+}
+
+function route($name, $params = null) {
+    return Route::translate($name, $params);
+}
+
+function redirect($pattern) {
+    return resolve($pattern);
+}
+
+function back_route($path = null) {
+    if ($path) {
+        return header('Location: ' . $path);
+        exit;
+    }
+
+    return header('Location: ' . $_SERVER['HTTP_REFERER']);
+    exit;
+}
+
 /**
  * @param $password
  * @return false|string
@@ -208,10 +240,10 @@ function getError($id)
  */
 function setMenuActive($path = [])
 {
-    $url = isset($_GET["url"]) ? $_GET["url"] : "home";
+    $url = isset($_GET["uri"]) ? $_GET["uri"] : "home";
 
-    if (count(explode("/", $_GET["url"])) >= 4) {
-        $arr = explode("/", $_GET["url"]);
+    if (count(explode("/", $_GET["uri"])) >= 4) {
+        $arr = explode("/", $_GET["uri"]);
         $url = "{$arr[0]}/{$arr[1]}/{$arr[2]}";
     }
 

@@ -1,14 +1,17 @@
 <?php
-ob_start(); // control the application cache to have only 1 output
+error_reporting(E_ALL);
+ini_set('display_errors', true);
 
 session_start();
 
 $timezone = date_default_timezone_set("America/Sao_Paulo");
 
-require "vendor/autoload.php";
-require "config.php";
-require "helpers.php";
+require __DIR__ . "/vendor/autoload.php";
 
-(new Src\Core\Core())->run();
+try {
+    require __DIR__ . '/routes/web.php';
+} catch (\Exception $exception) {
+    echo $exception->getMessage();
+}
 
-ob_end_flush(); // send the output and clear the cache
+resolve();

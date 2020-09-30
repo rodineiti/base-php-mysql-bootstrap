@@ -46,23 +46,7 @@ class Controller
      */
     public function request()
     {
-        switch ($this->method())
-        {
-            case "GET":
-                return $_GET;
-                break;
-            case "POST":
-                $data = json_decode(file_get_contents("php://input")) ?? $_POST;
-                return (array) $data;
-                break;
-            case "PUT":
-            case "DELETE":
-                parse_str(file_get_contents("php://input"), $data);
-                return (array) $data;
-                break;
-            default:
-                return false;
-        }
+        return request();
     }
 
     /**
@@ -70,13 +54,7 @@ class Controller
      */
     public function redirect($path = null)
     {
-        if ($path) {
-            header("Location: " . BASE_URL . $path);
-            exit;
-        }
-
-        header("Location: " . BASE_URL);
-        exit;
+        return redirect($path);
     }
 
     /**
@@ -158,14 +136,12 @@ class Controller
         switch ($guard) {
             case "admins":
                 if (!isset($_SESSION['userLoggedAdmin']) || empty($_SESSION['userLoggedAdmin'])) {
-                    header("Location: " . BASE_URL . "admin?login");
-                    exit;
+                    return back_route(route("admin.login"));
                 }
                 break;
             default:
                 if (!isset($_SESSION['userLogged']) || empty($_SESSION['userLogged'])) {
-                    header("Location: " . BASE_URL . "auth?login");
-                    exit;
+                    return back_route(route("login"));
                 }
                 break;
         }

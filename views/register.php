@@ -1,6 +1,6 @@
 <div class="container register">
     <h1>Cadastre-se</h1>
-    <form method="POST" action="<?= BASE_URL ?>auth/save">
+    <form method="POST" action="<?= route("register") ?>">
         <div class="form-group">
             <label for="name">Nome:</label>
             <input type="text" name="name" id="name" value="<?=oldInput("name")?>" class="form-control" required />

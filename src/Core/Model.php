@@ -326,6 +326,8 @@ class Model
     public function count(): ?int
     {
         try {
+            $this->clauseJoins();
+            $this->clauseWhere();
             $stmt = $this->db->prepare($this->query);
             $stmt->execute($this->params);
             return $stmt->rowCount();

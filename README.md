@@ -5,7 +5,7 @@
 
 Clone the repository
 
-    git clone https://github.com/rodineiti/base-php-mysql-bootstrap.git base
+    git clone git@gitlab.com:rodineiti/base-php-mysql-bootstrap.git base
 
 Switch to the repo folder
 

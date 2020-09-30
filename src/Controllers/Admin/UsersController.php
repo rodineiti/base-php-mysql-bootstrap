@@ -14,10 +14,7 @@ class UsersController extends Controller
     public function __construct()
     {
         parent::__construct("admin/template");
-
-        if (!auth("admins")) {
-            $this->redirect("admin?login");
-        }
+        $this->auth("admins");
 
         $this->user = new User();
         $this->data = array();
@@ -37,28 +34,28 @@ class UsersController extends Controller
 
     public function store()
     {
-        $data = filter_var_array($this->request(), FILTER_SANITIZE_STRIPPED);
+        $data = filter_var_array($this->request()->all(), FILTER_SANITIZE_STRIPPED);
 
         if (!$this->required($data)) {
             setFlashMessage("danger", ["Favor, preencher todos os campos"]);
-            $this->redirect("admin/users/create");
+            return back_route(route("admin.users.create"));
         }
 
         $user = $this->user->create($data);
 
         if (!$user) {
-            $this->redirect("admin/users/create");
+            return back_route(route("admin.users.create"));
         }
 
         setFlashMessage("success", ["Usuário adicionado com sucesso"]);
-        $this->redirect("admin/users/index");
+        return back_route(route("admin.users.index"));
     }
 
     public function edit($id)
     {
         if (!$user = $this->user->getById($id)) {
             setFlashMessage("danger", ["Usuário não encontrado."]);
-            $this->redirect("admin/users/index");
+            return back_route(route("admin.users.index"));
         }
 
         $this->data = array();
@@ -68,37 +65,37 @@ class UsersController extends Controller
 
     public function update($id)
     {
-        $data = filter_var_array($this->request(), FILTER_SANITIZE_STRIPPED);
+        $data = filter_var_array($this->request()->all(), FILTER_SANITIZE_STRIPPED);
 
         if (!$this->user->getById($id)) {
             setFlashMessage("danger", ["Usuário não encontrado."]);
-            $this->redirect("admin/users/index");
+            return back_route(route("admin.users.index"));
         }
 
         $this->required = ["name", "email"];
         if (!$this->required($data)) {
             setFlashMessage("danger", ["Favor, preencher todos os campos"]);
-            $this->redirect("admin/users/edit/{$id}");
+            return back_route(route("admin.users.edit", ["id" => $id]));
         }
 
         if ($this->user->updateProfile($id, $data)) {
-            $this->redirect("admin/users/edit/{$id}");
+            return back_route(route("admin.users.edit", ["id" => $id]));
         }
 
         setFlashMessage("success", ["Usuário atualizado com sucesso"]);
-        $this->redirect("admin/users/index");
+        return back_route(route("admin.users.index"));
     }
 
     public function destroy($id)
     {
         if (!$user = $this->user->getById($id)) {
             setFlashMessage("danger", ["Usuário não encontrado."]);
-            $this->redirect("admin/users/index");
+            return back_route(route("admin.users.index"));
         }
 
         $this->user->destroy($user->id);
 
         setFlashMessage("success", ["Usuário deletado com sucesso"]);
-        $this->redirect("admin/users/index");
+        return back_route(route("admin.users.index"));
     }
 }

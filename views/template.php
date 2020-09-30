@@ -10,7 +10,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light mb-2">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a href="<?= BASE_URL; ?>" class="navbar-brand"><?=SITE_NAME;?></a>
+            <a href="<?= route("home"); ?>" class="navbar-brand"><?=SITE_NAME;?></a>
         </div>
         <ul class="nav navbar-nav navbar-right">
             <?php if(auth()): ?>
@@ -18,13 +18,13 @@
                     <a class="nav-item nav-link dropdown-toggle" data-toggle="dropdown" href="javascript:;">
                         <?=auth()->name?></a>
                     <ul class="dropdown-menu">
-                        <li><a class="nav-item nav-link" href="<?= BASE_URL ?>auth/profile"><?=auth()->name?></a></li>
-                        <li><a class="nav-item nav-link" href="<?= BASE_URL ?>auth/logout">Sair</a></li>
+                        <li><a class="nav-item nav-link" href="<?= route("profile"); ?>"><?=auth()->name?></a></li>
+                        <li><a class="nav-item nav-link" href="<?= route("logout"); ?>">Sair</a></li>
                     </ul>
                 </li>
             <?php else: ?>
-                <li><a class="nav-item nav-link" href="<?php echo BASE_URL; ?>auth?login">Login</a></li>
-                <li><a class="nav-item nav-link" href="<?php echo BASE_URL; ?>auth/register">Cadastro</a></li>
+                <li><a class="nav-item nav-link" href="<?= route("login"); ?>">Login</a></li>
+                <li><a class="nav-item nav-link" href="<?= route("register"); ?>">Cadastro</a></li>
             <?php endif; ?>
         </ul>
     </div>
