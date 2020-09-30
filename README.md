@@ -28,32 +28,18 @@ Run server php or your server (Wamp, Mamp, Xamp), and open in the browser localh
 
 Url ADMIN:
 
-    Admin login: http://localhost/base/admin?login
+    Admin login: http://localhost/base/admin/login
 
     login: admin@admin.com
     password: 123456
     
 LOGIN USER:
 
-    login: http://localhost/base/auth?login
+    login: http://localhost/base/login
 
     login: user@user.com
     password: 123456
     
-    
-IMPORTANT
-
-    Whenever creating routes in the admin, it is necessary to add this route in the helpers.php file in function check_url() for the routing to work.
-    Without the parameters, only the final url. Example: admin/users/edit
-    
-    Example: 
-    
-    if your route admin: "admin/users/edit/5"
-       
-    add only: "admin/users/edit"
-
-![image](https://user-images.githubusercontent.com/25492122/90270781-25f81300-de31-11ea-9514-2b10ebe3b9e4.png)
-
 
 #### Selects
 ```php
