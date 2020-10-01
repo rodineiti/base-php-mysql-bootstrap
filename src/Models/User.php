@@ -106,7 +106,7 @@ class User extends Model
      * @param array $data
      * @return array|bool|mixed|null
      */
-    public function updateProfile($id, array $data)
+    public function updateProfile($user, array $data)
     {
         $newData = [];
         if (!empty($data["name"])) {
@@ -122,18 +122,35 @@ class User extends Model
             return false;
         }
 
-        if (isset($data["email"]) && $this->exists("email", $data["email"], $id)) {
+        if (isset($data["email"]) && $this->exists("email", $data["email"], $user->id)) {
             setFlashMessage("danger", ["Este e-mail já está em uso, favor verificar"]);
             return false;
         }
 
-        if (count($newData)) {
-            if ($this->update($newData, ["id" => $id])) {
-                return $this->getById($id);
+        if (isset($data["avatar"]) && count($data["avatar"])) {
+            if (in_array($data["avatar"]["type"], ["image/jpeg", "image/jpg", "image/png"])) {
+                $newData["avatar"] = cutImage(
+                    $data["avatar"],
+                    200,
+                    200,
+                    "media/avatars"
+                );
+                removeFile(CONF_UPLOAD_FILE_AVATARS, $user->avatar);
             }
         }
 
-        return $this->getById($id);
+
+        if (count($newData)) {
+            if ($this->update($newData, ["id" => $user->id])) {
+                return $this->getById($user->id);
+            } else {
+                setFlashMessage("danger", [
+                    "Não foi possível atualizar seus dados, tente mais tarde. Erro: " . $this->error()
+                ]);
+            }
+        }
+
+        return $this->getById($user->id);
     }
 
     /**

@@ -57,6 +57,7 @@ CREATE TABLE `users` (
   `name` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
+  `avatar` varchar(255) NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -71,7 +72,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'user','user@user.com','$2y$10$JxsGcZCAPf6pl8BvnppKtONxdVxkJW1pKjWzlr67oSBFS5/nD/oVm','2020-08-14 15:16:17','2020-08-14 15:16:17'),(2,'user2','user2@user.com','$2y$10$X.G.uRBaMPeXzlUSFolcje2I4HNdYiAWbDwN6lWBA7TRLImZTmu2W','2020-08-14 15:47:21',NULL);
+INSERT INTO `users` VALUES (1,'user','user@user.com','$2y$10$JxsGcZCAPf6pl8BvnppKtONxdVxkJW1pKjWzlr67oSBFS5/nD/oVm',null,'2020-08-14 15:16:17','2020-08-14 15:16:17'),(2,'user2','user2@user.com','$2y$10$X.G.uRBaMPeXzlUSFolcje2I4HNdYiAWbDwN6lWBA7TRLImZTmu2W',null,'2020-08-14 15:47:21',NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

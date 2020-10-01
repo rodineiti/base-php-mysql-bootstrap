@@ -94,13 +94,20 @@ class AuthController extends Controller
     {
         $request = filter_var_array($this->request()->all(), FILTER_SANITIZE_STRIPPED);
 
+        if ($this->request()->hasFile('avatar')) {
+            $avatar = $this->request()->file('avatar');
+            if (!$avatar["error"]) {
+                $request["avatar"] = $avatar;
+            }
+        }
+
         $this->required = ["name"];
         if (!$this->required($request)) {
             setFlashMessage("danger", ["Favor, informar o nome"]);
             return back_route();
         }
 
-        $user = $this->user->updateProfile(auth()->id, $request);
+        $user = $this->user->updateProfile(auth(), $request);
         if (!$user) {
             setFlashMessage("danger", ["Favor preencher todos os campos"]);
             return back_route(route("profile"));

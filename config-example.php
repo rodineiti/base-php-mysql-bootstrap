@@ -29,7 +29,8 @@ define("SITE_NAME", "RDNBASE");
 define("CONF_PASSWORD_ALGO", PASSWORD_DEFAULT);
 define("CONF_PASSWORD_OPTION", ["cost" => 10]);
 define("CONF_JWT_SECRET", "123456879");
-
+define("CONF_UPLOAD_DIR", "media");
+define("CONF_UPLOAD_FILE_AVATARS", CONF_UPLOAD_DIR . "/avatars");
 
 global $db;
 

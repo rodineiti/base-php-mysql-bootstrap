@@ -3,10 +3,17 @@
 use Src\Router\Route;
 use Src\Router\Request;
 
+/**
+ * @return Request
+ */
 function request() {
     return new Request;
 }
 
+/**
+ * @param null $request
+ * @return mixed|void
+ */
 function resolve($request = null) {
     if (is_null($request)) {
         $request = request();
@@ -14,14 +21,26 @@ function resolve($request = null) {
     return Route::resolve($request);
 }
 
+/**
+ * @param $name
+ * @param null $params
+ * @return bool|string
+ */
 function route($name, $params = null) {
     return Route::translate($name, $params);
 }
 
+/**
+ * @param $pattern
+ * @return mixed|void
+ */
 function redirect($pattern) {
     return resolve($pattern);
 }
 
+/**
+ * @param null $path
+ */
 function back_route($path = null) {
     if ($path) {
         return header('Location: ' . $path);
@@ -342,4 +361,64 @@ function oldInput($key = null, $default = null)
 function clearInput($key = null)
 {
     \Src\Support\Session::destroy($key);
+}
+
+/**
+ * @param $file
+ * @param $width
+ * @param $height
+ * @param $folder
+ * @return string
+ */
+function cutImage($file, $width, $height, $folder)
+{
+    list($wOriginal, $hOriginal) = getimagesize($file["tmp_name"]);
+    $rate = ($wOriginal / $hOriginal);
+
+    $newWidth = $width;
+    $newHeight = ($newWidth / $rate);
+
+    if ($newHeight < $height) {
+        $newHeight = $height;
+        $newWidth = ($newHeight * $rate);
+    }
+
+    $x = ($width - $newWidth);
+    $y = ($height - $newHeight);
+    $x = $x < 0 ? $x / 2 : $x;
+    $y = $y < 0 ? $y / 2 : $y;
+
+    $imageFinal = imagecreatetruecolor($width, $height);
+    switch ($file["type"]) {
+        case "image/jpeg":
+        case "image/jpg":
+            $image = imagecreatefromjpeg($file["tmp_name"]);
+            break;
+        case "image/png":
+            $image = imagecreatefrompng($file["tmp_name"]);
+    }
+
+    imagecopyresampled($imageFinal, $image, $x, $y, 0,0, $newWidth, $newHeight, $wOriginal, $hOriginal);
+
+    $filename = md5(time().rand(0,9999)).".jpg";
+    imagejpeg($imageFinal, $folder."/".$filename);
+
+    return $filename;
+}
+
+/**
+ * @param $folder
+ * @param $file
+ */
+function removeFile($folder, $file)
+{
+    if (!empty($file))
+    {
+        $filePath = $folder."/".$file;
+
+        if (file_exists($filePath))
+        {
+            @unlink($filePath);
+        }
+    }
 }
