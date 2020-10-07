@@ -63,8 +63,7 @@ class Model
      */
     public function __construct(string $table)
     {
-        global $db;
-        $this->db = $db;
+        $this->db = Connection::getInstance();
         $this->table = $table;
     }
 
