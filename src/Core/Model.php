@@ -3,15 +3,19 @@
 namespace Src\Core;
 
 /**
- * Class Model
+ * Abstract Class Model - Pattern Supertype
  * @package Src\Core
  */
-class Model
+abstract class Model
 {
     /**
      * @var \PDO
      */
     protected $db;
+    /**
+     * @var object|null
+     */
+    protected $data;
     /**
      * @var string
      */
@@ -65,6 +69,39 @@ class Model
     {
         $this->db = Connection::getInstance();
         $this->table = $table;
+    }
+
+    /**
+     * @param $name
+     * @param $value
+     */
+    public function __set($name, $value)
+    {
+        if (empty($this->data)) {
+            $this->data = new \stdClass();
+        }
+        $this->data->$name = $value;
+    }
+
+    public function __get($name)
+    {
+        if ($this->data->$name) {
+            return $this->data->$name;
+        }
+        return null;
+    }
+
+    public function __isset($name)
+    {
+        return isset($this->data->$name);
+    }
+
+    /**
+     * @return object|null
+     */
+    public function data(): ?object
+    {
+        return $this->data;
     }
 
     /**
