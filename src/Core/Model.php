@@ -151,7 +151,7 @@ abstract class Model
                 return null;
             }
 
-            return $stmt->fetchObject();
+            return $stmt->fetchObject(static::class);
         } catch (\PDOException $exception) {
             $this->error = $exception;
             return null;
@@ -175,7 +175,7 @@ abstract class Model
                 return null;
             }
 
-            return $stmt->fetchAll(\PDO::FETCH_OBJ);
+            return $stmt->fetchAll(\PDO::FETCH_CLASS, static::class);
         } catch (\PDOException $exception) {
             $this->error = $exception;
             return null;
@@ -206,9 +206,9 @@ abstract class Model
      * @param string $column
      * @return Model
      */
-    public function order(string $column): Model
+    public function order(string $column, string $direction = 'ASC'): Model
     {
-        $this->order = " ORDER BY {$column} ";
+        $this->order = " ORDER BY {$column} {$direction}";
         return $this;
     }
 
@@ -303,6 +303,53 @@ abstract class Model
     }
 
     /**
+     * @return bool
+     */
+    public function save()
+    {
+        /**
+         * update
+         */
+        if (!empty($this->id)) {
+            $id = $this->id;
+            $data = (array)$this->data;
+            unset($data['id']);
+            $this->update($data, ['id' => $id]);
+            if ($this->error()) {
+                return false;
+            }
+        }
+
+        /**
+         * create
+         */
+        if (empty($this->id)) {
+            $data = (array)$this->data;
+            unset($data['id']);
+            $id = $this->insert($data);
+            if ($this->error()) {
+                return false;
+            }
+        }
+
+        $this->data = $this->findById($id);
+        return true;
+    }
+
+    /**
+     * @return bool
+     */
+    public function destroy()
+    {
+        if (empty($this->id)) {
+            return false;
+        }
+
+        $destroy = $this->delete(['id' => $this->id]);
+        return $destroy;
+    }
+
+    /**
      * @param string|null $params
      */
     private function concatParams(?string &$params): void
@@ -385,30 +432,26 @@ abstract class Model
 
     /**
      * @param array $data
-     * @return string|null
+     * @return int|null
      */
-    public function insert($data = [])
+    protected function insert(array $data)
     {
-        if (count($data)) {
-            $values = array();
-            for ($i = 0; $i < count($data); $i++) {
-                $values[] = "?";
-            }
-            $query = sprintf("INSERT INTO {$this->table} (%s) VALUES (%s)",
-                implode(",", array_keys($data)), implode(",", $values));
-
-            try {
-                $stmt = $this->db->prepare($query);
-                $stmt->execute(array_values($data));
-
-                return $this->db->lastInsertId();
-            } catch (\PDOException $exception) {
-                $this->error = $exception;
-                return null;
-            }
+        $values = array();
+        for ($i = 0; $i < count($data); $i++) {
+            $values[] = "?";
         }
+        $query = sprintf("INSERT INTO {$this->table} (%s) VALUES (%s)",
+            implode(",", array_keys($data)), implode(",", $values));
 
-        return null;
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute(array_values($data));
+
+            return $this->db->lastInsertId();
+        } catch (\PDOException $exception) {
+            $this->error = $exception;
+            return null;
+        }
     }
 
     /**
@@ -416,62 +459,54 @@ abstract class Model
      * @param array $where
      * @return int|null
      */
-    public function update($data = [], $where = [])
+    protected function update(array $data, array $where)
     {
-        if (count($data) && count($where)) {
-            $fields = array_keys($data);
-            $values = array_values($data);
-            $dataSet = array();
-            $wheres = array();
+        $fields = array_keys($data);
+        $values = array_values($data);
+        $dataSet = array();
+        $wheres = array();
 
-            foreach ($fields as $field) {
-                $dataSet[] = $field . " = ?";
-            }
-
-            foreach (array_keys($where) as $w) {
-                $wheres[] = $w . " = ?";
-            }
-
-            $query = sprintf("UPDATE {$this->table} SET %s WHERE %s",
-                implode(",", $dataSet), implode(" AND ", $wheres));
-
-            try {
-                $stmt = $this->db->prepare($query);
-                $stmt->execute(array_merge(array_values($values), array_values($where)));
-                return ($stmt->rowCount() === 0 ? 1 : $stmt->rowCount());
-            } catch (\PDOException $exception) {
-                $this->error = $exception;
-                return null;
-            }
+        foreach ($fields as $field) {
+            $dataSet[] = $field . " = ?";
         }
 
-        return null;
+        foreach (array_keys($where) as $w) {
+            $wheres[] = $w . " = ?";
+        }
+
+        $query = sprintf("UPDATE {$this->table} SET %s WHERE %s",
+            implode(",", $dataSet), implode(" AND ", $wheres));
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute(array_merge(array_values($values), array_values($where)));
+            return ($stmt->rowCount() === 0 ? 1 : $stmt->rowCount());
+        } catch (\PDOException $exception) {
+            $this->error = $exception;
+            return null;
+        }
     }
 
     /**
      * @param array $where
      * @return bool
      */
-    public function delete($where = [])
+    public function delete(array $where)
     {
-        if (count($where)) {
-            foreach (array_keys($where) as $w) {
-                $wheres[] = $w . " = ?";
-            }
-
-            $query = sprintf("DELETE FROM {$this->table} WHERE %s", implode(" AND ", $wheres));
-
-            try {
-                $stmt = $this->db->prepare($query);
-                $stmt->execute(array_values($where));
-                return true;
-            } catch (\PDOException $exception) {
-                $this->error = $exception;
-                return false;
-            }
+        foreach (array_keys($where) as $w) {
+            $wheres[] = $w . " = ?";
         }
 
-        return false;
+        $query = sprintf("DELETE FROM {$this->table} WHERE %s", implode(" AND ", $wheres));
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute(array_values($where));
+            return true;
+        } catch (\PDOException $exception) {
+            $this->error = $exception;
+            return false;
+        }
     }
 
     /**
