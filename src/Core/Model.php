@@ -510,9 +510,9 @@ abstract class Model
     }
 
     /**
-     * @return \PDOException|null
+     * @return \PDOException|\Exception|null
      */
-    public function error(): ?\PDOException
+    public function error()
     {
         return $this->error;
     }
