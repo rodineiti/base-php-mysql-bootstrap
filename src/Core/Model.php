@@ -85,7 +85,7 @@ abstract class Model
 
     public function __get($name)
     {
-        if ($this->data->$name) {
+        if ($this->__isset($name)) {
             return $this->data->$name;
         }
         return null;
