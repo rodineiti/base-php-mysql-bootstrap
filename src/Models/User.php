@@ -4,6 +4,7 @@ namespace Src\Models;
 
 use Src\Core\Model;
 use Src\Support\Session;
+use Exception;
 
 /**
  * Class User
@@ -37,148 +38,58 @@ class User extends Model
         }
 
         if (pwd_rehash($user->password)) {
-            $this->update(["password" => pwd_gen_hash($password)],  ["id" => $user->id]);
+            $user->password = pwd_gen_hash($password);
+            $user->save();
         }
 
         return $user;
     }
 
-    /**
-     * @param $user
-     */
-    public function setSession($user)
+    public function save()
     {
-        Session::set("userLogged", (object)$user);
-    }
-
-    /**
-     *
-     */
-    public function destroySession()
-    {
-        Session::destroy("userLogged");
-    }
-
-    /**
-     * @param array $data
-     * @return array|bool|mixed|null
-     */
-    public function create(array $data)
-    {
-        if (!filter_var($data["email"], FILTER_VALIDATE_EMAIL)) {
-            setFlashMessage("danger", ["Favor, informar um e-mail válido"]);
+        if (!$this->checkEmail() || !$this->passwordHash()) {
             return false;
         }
 
-        if ($this->exists("email", $data["email"])) {
-            setFlashMessage("danger", ["Este e-mail já está em uso, favor verificar"]);
+        return parent::save();
+    }
+
+    protected function checkEmail()
+    {
+        $check = null;
+
+        if ($this->id) {
+            $check = $this->select()
+                ->where("email", "=", $this->email)
+                ->where("id", "<>", $this->id)
+                ->count();
+        } else {
+            $check = $this->select()
+                ->where("email", "=", $this->email)
+                ->count();
+        }
+
+        if ($check) {
+            $this->error = new Exception("Este e-mail {$this->email} já está em uso.");
             return false;
         }
 
-        $data["password"] = pwd_gen_hash($data["password"]);
-
-        $userId = $this->insert($data);
-
-        if ($userId) {
-            return $this->getById($userId);
-        }
-
-        return null;
+        return true;
     }
 
-    /**
-     * @param $id
-     * @param array $columns
-     * @return array|mixed|null
-     */
-    public function getById($id, $columns = ["*"])
+    protected function passwordHash()
     {
-        $user = $this->findById($id, $columns);
-
-        if ($user) {
-            return $user;
-        }
-        return null;
-    }
-
-    /**
-     * @param $id
-     * @param array $data
-     * @return array|bool|mixed|null
-     */
-    public function updateProfile($user, array $data)
-    {
-        $newData = [];
-        if (!empty($data["name"])) {
-            $newData["name"] = $data["name"];
-        }
-
-        if (!empty($data["password"])) {
-            $newData["password"] = pwd_gen_hash($data["password"]);
-        }
-
-        if (isset($data["email"]) && !filter_var($data["email"], FILTER_VALIDATE_EMAIL)) {
-            setFlashMessage("danger", ["Favor, informar um e-mail válido"]);
+        if (empty($this->password) || strlen($this->password) < 6) {
+            $this->error = new Exception("Sua senha precisa ter pelo menos 6 dígitos.");
             return false;
         }
 
-        if (isset($data["email"]) && $this->exists("email", $data["email"], $user->id)) {
-            setFlashMessage("danger", ["Este e-mail já está em uso, favor verificar"]);
-            return false;
+        if (password_get_info($this->password)["algo"]) {
+            return true;
         }
 
-        if (isset($data["avatar"]) && count($data["avatar"])) {
-            if (in_array($data["avatar"]["type"], ["image/jpeg", "image/jpg", "image/png"])) {
-                $newData["avatar"] = cutImage(
-                    $data["avatar"],
-                    200,
-                    200,
-                    "media/avatars"
-                );
-                removeFile(CONF_UPLOAD_FILE_AVATARS, $user->avatar);
-            }
-        }
-
-
-        if (count($newData)) {
-            if ($this->update($newData, ["id" => $user->id])) {
-                return $this->getById($user->id);
-            } else {
-                setFlashMessage("danger", [
-                    "Não foi possível atualizar seus dados, tente mais tarde. Erro: " . $this->error()
-                ]);
-            }
-        }
-
-        return $this->getById($user->id);
-    }
-
-    /**
-     * @param $field
-     * @param $value
-     * @param null $id
-     * @return array|mixed|null
-     */
-    public function exists($field, $value, $id = null)
-    {
-        if ($id) {
-            return $this->select()->where($field, "=", $value)->whereNotIn("id", [$id])->first();
-        }
-
-        return $this->select()->where($field, "=", $value)->first();
-    }
-
-    /**
-     * @param $id
-     * @return bool
-     */
-    public function destroy($id)
-    {
-        if ($id === auth()->id) {
-            return false;
-        }
-
-        return $this->delete(["id" => $id]);
+        $this->password = password_hash($this->password, CONF_PASSWORD_ALGO, CONF_PASSWORD_OPTION);
+        return true;
     }
 }
 

@@ -19,6 +19,7 @@ if (ENV === "development") {
 
 define("CONF_DEFAULT_LANG", "pt-br");
 define("BASE_URL", "http://localhost/base/");
+define("BASE_URL_TEST", "http://localhost/base/");
 define("SITE_NAME", "RDNBASE");
 
 /**
@@ -27,5 +28,29 @@ define("SITE_NAME", "RDNBASE");
 define("CONF_PASSWORD_ALGO", PASSWORD_DEFAULT);
 define("CONF_PASSWORD_OPTION", ["cost" => 10]);
 define("CONF_JWT_SECRET", "123456879");
+
+/**
+ * UPLOADS
+ */
 define("CONF_UPLOAD_DIR", "media");
 define("CONF_UPLOAD_FILE_AVATARS", CONF_UPLOAD_DIR . "/avatars");
+define("CONF_UPLOAD_FILE_UPLOADS", CONF_UPLOAD_DIR . "/uploads");
+
+/**
+ * MAIL
+ */
+define("SENDBLUE_CONFIG", [
+    "host" => "",
+    "port" => "587",
+    "user" => "",
+    "password" => "",
+    "from_name" => "",
+    "from_email" => "",
+    "from_support" => "",
+    "lang" => "br",
+    "html" => true,
+    "auth" => true,
+    "secure" => "tls",
+    "charset" => "utf-8",
+    "debug" => 1
+]);

@@ -4,6 +4,7 @@ namespace Src\Controllers;
 
 use Src\Core\Controller;
 use Src\Models\User;
+use Src\Support\Auth;
 
 class AuthController extends Controller
 {
@@ -54,7 +55,7 @@ class AuthController extends Controller
             return back_route();
         }
 
-        $this->user->setSession($user);
+        Auth::setSession("user", $user->id);
 
         setFlashMessage("success", ["Bem vindo " . auth()->name]);
         return back_route(route("profile"));
@@ -81,7 +82,7 @@ class AuthController extends Controller
             return back_route();
         }
 
-        $this->user->setSession($user);
+        Auth::setSession("user", $user->id);
 
         clearInput("name"); // clear input
         clearInput("email"); // clear input
@@ -112,7 +113,7 @@ class AuthController extends Controller
             setFlashMessage("danger", ["Favor preencher todos os campos"]);
             return back_route(route("profile"));
         } else {
-            $this->user->setSession($user);
+            Auth::setSession("user", $user->id);
             setFlashMessage("success", ["Dados atualizados com sucesso"]);
             return back_route(route("profile"));
         }
@@ -120,7 +121,7 @@ class AuthController extends Controller
 
     public function logout()
     {
-        $this->user->destroySession();
+        Auth::destroySession("user");
         return back_route(route("home"));
     }
 }

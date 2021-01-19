@@ -103,13 +103,34 @@ function parseArray($data, $field)
  */
 function auth($guard = "users")
 {
-    switch ($guard) {
+     switch ($guard) {
         case "admins":
-            return isset($_SESSION["userLoggedAdmin"]) ? $_SESSION["userLoggedAdmin"] : null;
+            return \Src\Support\Auth::admin();
         default:
-            return isset($_SESSION["userLogged"]) ? $_SESSION["userLogged"] : null;
+            return \Src\Support\Auth::user();
     }
 }
+
+/**
+ * @param string $guard
+ * @return boolean
+ */
+function check($guard = "users")
+{
+    switch ($guard) {
+        case "admins":
+            if (\Src\Support\Session::has("admin")) {
+                return true;
+            }
+        default:
+            if (\Src\Support\Session::has("user")) {
+                return true;
+            }
+    }
+
+    return false;
+}
+
 
 /**
  * @param null $image
@@ -145,19 +166,6 @@ function asset($path = null)
         return BASE_URL . "assets/{$path}";
     }
     return null;
-}
-
-/**
- * @param null $path
- * @return string|null
- */
-function url($path = null)
-{
-    if ($path) {
-        return BASE_URL . "{$path}";
-    }
-
-    return $path;
 }
 
 /**
@@ -270,18 +278,6 @@ function setMenuActive($path = [])
         return "active";
     }
     return "";
-}
-
-/**
- * @param $slug
- * @return bool
- */
-function hasPermission($slug)
-{
-    if (in_array($slug, auth("admins")->permissions)) {
-        return true;
-    }
-    return false;
 }
 
 /**
@@ -421,4 +417,24 @@ function removeFile($folder, $file)
             @unlink($filePath);
         }
     }
+}
+
+/**
+ * @param string $path
+ * @return string
+ */
+function url($path = null)
+{
+    if (strstr($_SERVER["HTTP_HOST"], "localhost")) {
+        if ($path) {
+            return BASE_URL_TEST . "/" . ($path[0] == "/" ? mb_substr($path, 1) : $path);
+        }
+        return BASE_URL_TEST;
+    }
+
+    if ($path) {
+        return BASE_URL . "/" . ($path[0] == "/" ? mb_substr($path, 1) : $path);
+    }
+
+    return BASE_URL;
 }

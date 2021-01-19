@@ -135,13 +135,13 @@ class Controller
     {
         switch ($guard) {
             case "admins":
-                if (!isset($_SESSION['userLoggedAdmin']) || empty($_SESSION['userLoggedAdmin'])) {
-                    return back_route(route("admin.login"));
+                if (!check($guard)) {
+                    back_route(route("admin.login"));
                 }
                 break;
             default:
-                if (!isset($_SESSION['userLogged']) || empty($_SESSION['userLogged'])) {
-                    return back_route(route("login"));
+                if (!check($guard)) {
+                    back_route(route("login"));
                 }
                 break;
         }

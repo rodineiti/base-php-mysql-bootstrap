@@ -13,7 +13,7 @@
             <a href="<?= route("home"); ?>" class="navbar-brand"><?=SITE_NAME;?></a>
         </div>
         <ul class="nav navbar-nav navbar-right">
-            <?php if(auth()): ?>
+            <?php if(check()): ?>
                 <li class="dropdown mr-2">
                     <a class="nav-item nav-link dropdown-toggle" data-toggle="dropdown" href="javascript:;">
                         <?=auth()->name?></a>

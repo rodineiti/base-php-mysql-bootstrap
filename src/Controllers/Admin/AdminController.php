@@ -4,6 +4,7 @@ namespace Src\Controllers\Admin;
 
 use Src\Core\Controller;
 use Src\Models\Admin as User;
+use Src\Support\Auth;
 
 class AdminController extends Controller
 {
@@ -48,7 +49,7 @@ class AdminController extends Controller
             return back_route();
         }
 
-        $this->user->setSession($user);
+        Auth::setSession("admin", $user->id);
 
         setFlashMessage("success", ["Bem vindo " . auth("admins")->name]);
         return back_route(route("admin.home"));
@@ -69,7 +70,7 @@ class AdminController extends Controller
             setFlashMessage("danger", ["Favor preencher todos os campos"]);
             return back_route();
         } else {
-            $this->user->setSession($user);
+            Auth::setSession("admin", $user->id);
             setFlashMessage("success", ["Dados atualizados com sucesso"]);
             return back_route();
         }
@@ -77,7 +78,7 @@ class AdminController extends Controller
 
     public function logout()
     {
-        $this->user->destroySession();
+        Auth::destroySession("admin");
         return back_route(route("admin.login"));
     }
 }
