@@ -11,8 +11,8 @@ class HomeController extends Controller
     public function __construct()
     {
         parent::__construct("admin/template");
-        $this->data = array();
         $this->auth("admins");
+        $this->data = array();
     }
 
     public function index()
