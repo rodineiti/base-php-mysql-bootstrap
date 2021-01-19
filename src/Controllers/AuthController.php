@@ -8,25 +8,31 @@ use Src\Support\Auth;
 
 class AuthController extends Controller
 {
-    protected $user;
     protected $data;
     protected $required;
 
     public function __construct()
     {
         parent::__construct();
-        $this->user = new User();
         $this->data = array();
         $this->required = ["name", "email", "password"];
     }
 
     public function index()
     {
+        if (check()) {
+            back_route(route("profile"));
+        }
+
         $this->template("login", $this->data);
     }
 
     public function register()
     {
+        if (check()) {
+            back_route(route("profile"));
+        }
+
         $this->template("register", $this->data);
     }
 
@@ -42,44 +48,44 @@ class AuthController extends Controller
         $this->required = ["email", "password"];
         if (!$this->required($request)) {
             setFlashMessage("danger", ["Favor, informar seu e-mail e senha"]);
-            return back_route();
+            back_route();
         }
 
         $email = $request["email"];
         $password = $request["password"];
 
-        $user = $this->user->attempt($email, $password);
+        $user = (new User())->attempt($email, $password);
 
         if (!$user) {
             setFlashMessage("danger", ["Usuário e/ou Senha errados!"]);
-            return back_route();
+            back_route();
         }
 
         Auth::setSession("user", $user->id);
 
         setFlashMessage("success", ["Bem vindo " . auth()->name]);
-        return back_route(route("profile"));
+        back_route(route("profile"));
     }
 
     public function save()
     {
-        $request = filter_var_array($this->request()->all(), FILTER_SANITIZE_STRIPPED);
-        setInput("name", $request["name"] ?? null);
-        setInput("email", $request["email"] ?? null);
+        $data = filter_var_array($this->request()->all(), FILTER_SANITIZE_STRIPPED);
+        setInput("name", $data["name"] ?? null);
+        setInput("email", $data["email"] ?? null);
 
-        if (!$this->required($request)) {
+        if (!$this->required($data)) {
             setFlashMessage("danger", ["Favor, preencher todos os campos"]);
-            return back_route();
+            back_route();
         }
 
-        $data["name"] = $request["name"];
-        $data["email"] = $request["email"];
-        $data["password"] = $request["password"];
+        $user = new User();
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+        $user->password = $data['password'];
 
-        $user = $this->user->create($data);
-
-        if (!$user) {
-            return back_route();
+        if (!$user->save()) {
+            setFlashMessage("danger", [$user->error()->getMessage()]);
+            back_route();
         }
 
         Auth::setSession("user", $user->id);
@@ -88,40 +94,55 @@ class AuthController extends Controller
         clearInput("email"); // clear input
 
         setFlashMessage("success", ["Bem vindo " . auth()->name]);
-        return back_route(route("profile"));
+        back_route(route("profile"));
     }
 
     public function update()
     {
-        $request = filter_var_array($this->request()->all(), FILTER_SANITIZE_STRIPPED);
+        $data = filter_var_array($this->request()->all(), FILTER_SANITIZE_STRIPPED);
+
+        $this->required = ["name"];
+        if (!$this->required($data)) {
+            setFlashMessage("danger", ["Favor, informar o nome"]);
+            back_route();
+        }
 
         if ($this->request()->hasFile('avatar')) {
             $avatar = $this->request()->file('avatar');
             if (!$avatar["error"]) {
-                $request["avatar"] = $avatar;
+                $data["avatar"] = $avatar;
             }
         }
 
-        $this->required = ["name"];
-        if (!$this->required($request)) {
-            setFlashMessage("danger", ["Favor, informar o nome"]);
-            return back_route();
+        $user = auth();
+        $user->name = $data['name'];
+        $user->password = (!empty($data["password"]) ? $data["password"] : $user->password);
+
+        if (isset($data["avatar"]) && count($data["avatar"])) {
+            if (in_array($data["avatar"]["type"], ["image/jpeg", "image/jpg", "image/png"])) {
+                $data["avatar"] = cutImage(
+                    $data["avatar"],
+                    200,
+                    200,
+                    CONF_UPLOAD_FILE_AVATARS
+                );
+                removeFile(CONF_UPLOAD_FILE_AVATARS, $user->avatar);
+
+                $user->avatar = (!empty($data["avatar"]) ? $data["avatar"] : $user->avatar);
+            }
         }
 
-        $user = $this->user->updateProfile(auth(), $request);
-        if (!$user) {
-            setFlashMessage("danger", ["Favor preencher todos os campos"]);
-            return back_route(route("profile"));
-        } else {
-            Auth::setSession("user", $user->id);
-            setFlashMessage("success", ["Dados atualizados com sucesso"]);
-            return back_route(route("profile"));
+        if (!$user->save()) {
+            setFlashMessage("danger", [$user->error()->getMessage()]);
         }
+
+        setFlashMessage("success", ["Perfil atualizado com sucesso"]);
+        back_route();
     }
 
     public function logout()
     {
         Auth::destroySession("user");
-        return back_route(route("home"));
+        back_route(route("home"));
     }
 }

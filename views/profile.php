@@ -1,11 +1,11 @@
 <div class="container profile">
     <h1>Meu perfil</h1>
     <div class="row">
-        <div class="col-4">
+        <div class="col-4 text-center">
             <?php if (auth()->avatar): ?>
-                <img src="<?=media("avatars/".auth()->avatar);?>" class="rounded" alt="avatar" title="avatar" />
-            <?php else: ?>
-                <img src="<?=media("avatars/avatar.png");?>" class="rounded" alt="avatar" title="avatar" />
+                <img src="<?=media("avatars/".auth()->avatar);?>"
+                     style="border-radius: 50%;border: 2px solid #ccc;"
+                     alt="avatar" title="avatar" />
             <?php endif; ?>
         </div>
         <div class="col-8">

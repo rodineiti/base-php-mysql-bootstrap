@@ -43,11 +43,11 @@ function redirect($pattern) {
  */
 function back_route($path = null) {
     if ($path) {
-        return header('Location: ' . $path);
+        header('Location: ' . $path);
         exit;
     }
 
-    return header('Location: ' . $_SERVER['HTTP_REFERER']);
+    header('Location: ' . $_SERVER['HTTP_REFERER']);
     exit;
 }
 
@@ -122,6 +122,7 @@ function check($guard = "users")
             if (\Src\Support\Session::has("admin")) {
                 return true;
             }
+            break;
         default:
             if (\Src\Support\Session::has("user")) {
                 return true;
@@ -183,22 +184,6 @@ function dd(...$value)
 {
     print("<pre>".print_r($value,true)."</pre>");
     die;
-}
-
-/**
- * @return array
- */
-function check_url()
-{
-    return [
-        "admin",
-        "admin/home",
-        "admin/logout",
-        "admin/login",
-        "admin/profile",
-        "admin/update",
-        "admin/users",
-    ];
 }
 
 /**
@@ -437,4 +422,23 @@ function url($path = null)
     }
 
     return BASE_URL;
+}
+
+/**
+ * @param $index
+ * @param bool $lower
+ * @return mixed|string
+ */
+function type_job($index, $lower = false)
+{
+    $arr = [
+        'Freelance',
+        'Part Time',
+        'Full Time',
+        'Internship'
+    ];
+
+    $value = str_replace(" ", "-", $arr[$index]);
+
+    return $lower ? strtolower($value) : $value;
 }

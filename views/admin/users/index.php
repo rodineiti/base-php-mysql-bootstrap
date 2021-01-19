@@ -29,7 +29,8 @@
                         <td><?= $user->created_at ?></td>
                         <td>
                             <a href="<?= route("admin.users.edit", ["id" => $user->id]); ?>" class="btn btn-info">Editar</a>
-                            <a href="<?= route("admin.users.destroy", ["id" => $user->id]); ?>" class="btn btn-danger">Deletar</a>
+                            <a href="<?= route("admin.users.destroy", ["id" => $user->id]); ?>"
+                               onclick="return confirm('Confirma a exclusão?');" class="btn btn-danger">Deletar</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

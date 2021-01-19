@@ -4,10 +4,10 @@ namespace Src\Controllers\Admin;
 
 use Src\Core\Controller;
 use Src\Models\User;
+use Src\Support\Auth;
 
 class UsersController extends Controller
 {
-    protected $user;
     protected $data;
     protected $required;
 
@@ -16,14 +16,13 @@ class UsersController extends Controller
         parent::__construct("admin/template");
         $this->auth("admins");
 
-        $this->user = new User();
         $this->data = array();
         $this->required = ["name", "email", "password"];
     }
 
     public function index()
     {
-        $this->data["users"] = $this->user->select()->all();
+        $this->data["users"] = (new User())->select()->all();
         $this->template("admin/users/index", $this->data);
     }
 
@@ -38,24 +37,33 @@ class UsersController extends Controller
 
         if (!$this->required($data)) {
             setFlashMessage("danger", ["Favor, preencher todos os campos"]);
-            return back_route(route("admin.users.create"));
+            back_route(route("admin.users.create"));
         }
 
-        $user = $this->user->create($data);
+        $user = new User();
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+        $user->password = $data['password'];
 
-        if (!$user) {
-            return back_route(route("admin.users.create"));
+        if (!$user->save()) {
+            setFlashMessage("danger", [$user->error()->getMessage()]);
+            back_route(route("admin.users.create"));
         }
 
-        setFlashMessage("success", ["Usuário adicionado com sucesso"]);
-        return back_route(route("admin.users.index"));
+        Auth::setSession("user", $user->id);
+
+        clearInput("name"); // clear input
+        clearInput("email"); // clear input
+
+        setFlashMessage("success", ["Bem vindo " . auth()->name]);
+        back_route(route("profile"));
     }
 
     public function edit($id)
     {
-        if (!$user = $this->user->getById($id)) {
+        if (!$user = (new User())->findById($id)) {
             setFlashMessage("danger", ["Usuário não encontrado."]);
-            return back_route(route("admin.users.index"));
+            back_route(route("admin.users.index"));
         }
 
         $this->data = array();
@@ -67,35 +75,39 @@ class UsersController extends Controller
     {
         $data = filter_var_array($this->request()->all(), FILTER_SANITIZE_STRIPPED);
 
-        if (!$this->user->getById($id)) {
+        if (!$user = (new User())->findById($id)) {
             setFlashMessage("danger", ["Usuário não encontrado."]);
-            return back_route(route("admin.users.index"));
+            back_route(route("admin.users.index"));
         }
 
         $this->required = ["name", "email"];
         if (!$this->required($data)) {
             setFlashMessage("danger", ["Favor, preencher todos os campos"]);
-            return back_route(route("admin.users.edit", ["id" => $id]));
+            back_route(route("admin.users.edit", ["id" => $id]));
         }
 
-        if ($this->user->updateProfile($id, $data)) {
-            return back_route(route("admin.users.edit", ["id" => $id]));
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+        $user->password = (!empty($data["password"]) ? $data["password"] : $user->password);
+
+        if (!$user->save()) {
+            setFlashMessage("danger", [$user->error()->getMessage()]);
+            back_route(route("admin.users.edit", ["id" => $id]));
         }
 
-        setFlashMessage("success", ["Usuário atualizado com sucesso"]);
-        return back_route(route("admin.users.index"));
+        back_route(route("admin.users.index"));
     }
 
     public function destroy($id)
     {
-        if (!$user = $this->user->getById($id)) {
+        if (!$user = (new User())->findById($id)) {
             setFlashMessage("danger", ["Usuário não encontrado."]);
-            return back_route(route("admin.users.index"));
+            back_route(route("admin.users.index"));
         }
 
-        $this->user->destroy($user->id);
+        $user->destroy();
 
         setFlashMessage("success", ["Usuário deletado com sucesso"]);
-        return back_route(route("admin.users.index"));
+        back_route(route("admin.users.index"));
     }
 }

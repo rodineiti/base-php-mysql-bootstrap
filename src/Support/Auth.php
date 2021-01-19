@@ -10,7 +10,7 @@ use Src\Support\Session;
  */
 class Auth
 {
-    public static function admin(): ?Admin
+    public static function admin(): ?\Src\Models\Admin
     {
         if (!Session::has("admin")) {
             return null;
@@ -19,7 +19,7 @@ class Auth
         return (new \Src\Models\Admin())->findById(Session::get("admin"));
     }
 
-    public static function user(): ?User
+    public static function user(): ?\Src\Models\User
     {
         if (!Session::has("user")) {
             return null;
