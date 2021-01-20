@@ -4,12 +4,8 @@
             <?=$this->view("admin/menu");?>
         </div>
         <div class="col-md-9">
+            <?=$this->view("admin/_includes/messages");?>
             <a href="<?= route("admin.users.create"); ?>" class="btn btn-primary mb-2">Adicionar</a>
-            <?php if (isset($_GET["error"])): ?>
-                <div class="alert alert-danger">
-                    Opss. Ocorreu um erro no processamento, tente mais tarde.
-                </div>
-            <?php endif; ?>
             <table class="table">
                 <thead class="thead-dark">
                 <tr>
@@ -21,21 +17,26 @@
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($users as $user): ?>
+                <?php foreach ($list as $item): ?>
                     <tr>
-                        <th scope="row"><?= $user->id ?></th>
-                        <td><?= $user->name ?></td>
-                        <td><?= $user->email ?></td>
-                        <td><?= $user->created_at ?></td>
+                        <th scope="row"><?= $item->id ?></th>
+                        <td><?= $item->name ?></td>
+                        <td><?= $item->email ?></td>
+                        <td><?= $item->created_at ?></td>
                         <td>
-                            <a href="<?= route("admin.users.edit", ["id" => $user->id]); ?>" class="btn btn-info">Editar</a>
-                            <a href="<?= route("admin.users.destroy", ["id" => $user->id]); ?>"
+                            <a href="<?= route("admin.users.edit", ["id" => $item->id]); ?>" class="btn btn-info">Editar</a>
+                            <a href="<?= route("admin.users.destroy", ["id" => $item->id]); ?>"
                                onclick="return confirm('Confirma a exclusão?');" class="btn btn-danger">Deletar</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
             </table>
+            <?php if (isset($pages) && isset($page) && $pages > 1): ?>
+                <?=$this->view("admin/_includes/pagination", [
+                    "pages" => $pages, "page" => $page,"redirect" => "admin.users.index"
+                ]);?>
+            <?php endif; ?>
         </div>
     </div>
 </div>

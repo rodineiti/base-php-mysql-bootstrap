@@ -62,7 +62,10 @@ class RouteCollection
         $pattern = '/^' . str_replace('/', '\/', $pattern) . '$/';
 
         if (preg_match("/\{[A-Za-z0-9\_\-]{1,}\}/", $pattern)) {
-            $pattern = preg_replace("/\{[A-Za-z0-9\_\-]{1,}\}/", "[A-Za-z0-9]{1,}", $pattern);
+            // old
+            //$pattern = preg_replace("/\{[A-Za-z0-9\_\-]{1,}\}/", "[A-Za-z0-9]{1,}", $pattern);
+            // to allow hifen (-) to slug
+            $pattern = preg_replace("/\{[A-Za-z0-9\_\-]{1,}\}/", "[A-Za-z0-9-]{1,}", $pattern);
         }
 
         return $pattern;

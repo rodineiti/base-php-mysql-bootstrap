@@ -106,6 +106,8 @@ function auth($guard = "users")
      switch ($guard) {
         case "admins":
             return \Src\Support\Auth::admin();
+         case "recruiters":
+             return \Src\Support\Auth::recruiter();
         default:
             return \Src\Support\Auth::user();
     }
@@ -120,6 +122,11 @@ function check($guard = "users")
     switch ($guard) {
         case "admins":
             if (\Src\Support\Session::has("admin")) {
+                return true;
+            }
+            break;
+        case "recruiters":
+            if (\Src\Support\Session::has("recruiter")) {
                 return true;
             }
             break;
@@ -442,3 +449,74 @@ function type_job($index, $lower = false)
 
     return $lower ? strtolower($value) : $value;
 }
+
+/**
+ * @param array $files
+ * @param $page
+ */
+function loadJSAdmin($files = [], $page)
+{
+    $url = isset($_GET["uri"]) ? $_GET["uri"] : "";
+
+    if (count(explode("/", $_GET["uri"])) >= 4) {
+        $arr = explode("/", $_GET["uri"]);
+        $url = "{$arr[0]}/{$arr[1]}/{$arr[2]}";
+    }
+
+    if ($page === $url) {
+        foreach ($files as $key => $value) {
+            echo '<script src="'.asset($value).'"></script>';
+        }
+    }
+}
+
+/**
+ * @param array $files
+ * @param $page
+ */
+function loadCSSAdmin($files = [], $page)
+{
+    $url = isset($_GET["uri"]) ? $_GET["uri"] : "";
+
+    if (count(explode("/", $_GET["uri"])) >= 4) {
+        $arr = explode("/", $_GET["uri"]);
+        $url = "{$arr[0]}/{$arr[1]}/{$arr[2]}";
+    }
+
+    if ($page === $url) {
+        foreach ($files as $key => $value) {
+            echo '<link rel="stylesheet" href="'.asset($value).'" />';
+        }
+    }
+}
+
+/**
+ * @param $index
+ * @param bool $lower
+ * @return mixed|string
+ */
+function field_name($field)
+{
+    $arr = [
+        "type_id" => "Tipo da vaga",
+        "level_id" => "Nível da vaga",
+        "area_id" => "Área",
+        "position" => "Cargo",
+        "company" => "Empresa",
+        "city" => "Cidade",
+        "state" => "Estado",
+        "country" => "País",
+        "location" => "Localização",
+        "remote" => "Vaga remota?",
+        "vacancies" => "Total de vagas",
+        "description" => "Descrição",
+        "salary_range_initial" => "Faixa Salarial Inicial",
+        "salary_range_final" => "Faixa Salarial Final",
+        "salary_period" => "Faixa Salarial Período",
+        "contact_email" => "E-mail de contato",
+    ];
+
+    return $arr[$field] ?? $field;
+}
+
+

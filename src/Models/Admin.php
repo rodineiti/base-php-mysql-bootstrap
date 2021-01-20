@@ -3,7 +3,6 @@
 namespace Src\Models;
 
 use Src\Core\Model;
-use Src\Support\Session;
 
 /**
  * Class Admin

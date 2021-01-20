@@ -139,6 +139,11 @@ class Controller
                     back_route(route("admin.login"));
                 }
                 break;
+            case "recruiters":
+                if (!check($guard)) {
+                    back_route(route("recruiter.login"));
+                }
+                break;
             default:
                 if (!check($guard)) {
                     back_route(route("login"));
@@ -153,11 +158,18 @@ class Controller
      */
     protected function required($request)
     {
+        $messages = [];
         foreach ($this->required as $field) {
             if (empty($request[$field])) {
-                return false;
+                $messages[] = "Favor preencher o campo: " . field_name($field);
             }
         }
+
+        if (count($messages)) {
+            setFlashMessage("danger", $messages);
+            return false;
+        }
+
         return true;
     }
 }

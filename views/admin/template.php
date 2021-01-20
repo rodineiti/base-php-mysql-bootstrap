@@ -25,30 +25,13 @@
         </ul>
     </div>
 </nav>
-<div class="row">
-    <div class="col-md-8 offset-3">
-        <?php if ($errors = flashMessage("errors")): ?>
-            <div class="alert alert-<?=$errors["status"]?>">
-                <?php if (is_array($errors["messages"])): ?>
-                    <ul>
-                        <?php foreach ($errors["messages"] as $error): ?>
-                            <li><?=$error?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                <?php endif; ?>
-                <?php if (is_string($errors["messages"])): ?>
-                    <?=$errors["messages"]?>
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
-    </div>
-</div>
 <?=$this->viewTemplate($view, $data)?>
 <div class="mb-5"></div>
 <script src="<?=asset("js/jquery.min.js")?>"></script>
 <script src="<?=asset("js/bootstrap.min.js")?>"></script>
 <script src="<?=asset("js/jquery.mask.js")?>"></script>
-<script>var baseUrl = '<?=BASE_URL?>admin';</script>
+<script src="<?=asset("js/ckeditor/ckeditor.js")?>"></script>
 <script src="<?=asset("js/admin/script.js")?>"></script>
+<script>var baseUrl = '<?=BASE_URL?>admin';</script>
 </body>
 </html>

@@ -108,6 +108,10 @@ class Router
                 array_pop($request_uri);
             }
 
+            while (in_array("recruiter", $request_uri)) {
+                array_pop($request_uri);
+            }
+
             foreach (array_filter($request_uri) as $key => $value) {
                 $uri[] = $value;
             }

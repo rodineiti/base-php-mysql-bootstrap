@@ -28,6 +28,15 @@ class Auth
         return (new \Src\Models\User())->findById(Session::get("user"));
     }
 
+    public static function recruiter(): ?\Src\Models\Recruiter
+    {
+        if (!Session::has("recruiter")) {
+            return null;
+        }
+
+        return (new \Src\Models\Recruiter())->findById(Session::get("recruiter"));
+    }
+
     public static function setSession($key, $value)
     {
         Session::set($key, $value);

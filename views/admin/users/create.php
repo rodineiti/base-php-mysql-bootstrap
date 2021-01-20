@@ -4,6 +4,7 @@
             <?=$this->view("admin/menu");?>
         </div>
         <div class="col-md-9">
+            <?=$this->view("admin/_includes/messages");?>
             <a href="<?= route("admin.users.index"); ?>" class="btn btn-info mb-2">Voltar</a>
             <h1>Adicionar usuário</h1>
             <form method="POST" action="<?= route("admin.users.store"); ?>" enctype="multipart/form-data">

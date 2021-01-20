@@ -1,5 +1,6 @@
 <div class="container">
     <h1>Editar perfil</h1>
+    <?=$this->view("admin/_includes/messages");?>
     <form method="POST" action="<?= route("admin.profile"); ?>">
         <div class="form-group">
             <label for="name">Nome:</label>

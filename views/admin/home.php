@@ -4,6 +4,7 @@
             <?=$this->view("admin/menu");?>
         </div>
         <div class="col-md-9">
+            <?=$this->view("admin/_includes/messages");?>
             <div class="row">
                 <div class="col-sm-4">
                     <div class="card text-center">

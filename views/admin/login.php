@@ -1,5 +1,6 @@
 <div class="container login">
     <h1>Login Admin</h1>
+    <?=$this->view("admin/_includes/messages");?>
     <form method="POST" action="<?= BASE_URL?>admin/login">
         <div class="form-group">
             <label for="email">E-mail:</label>
