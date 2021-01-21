@@ -111,6 +111,8 @@ class UsersController extends Controller
             back_route(route("admin.users.index"));
         }
 
+        removeFile(CONF_UPLOAD_FILE_AVATARS, $model->avatar);
+
         $model->destroy();
 
         setFlashMessage("success", ["Usuário deletado com sucesso"]);

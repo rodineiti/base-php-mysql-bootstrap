@@ -279,7 +279,7 @@ function setMenuActive($path = [])
 function str_slug($string)
 {
     $string = filter_var(mb_strtolower($string), FILTER_SANITIZE_STRIPPED);
-    $formats = 'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜüÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûýýþÿRr"!@#$%&*()_-+={[}]/?;:.,\\\'<>°ºª';
+    $formats = 'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜüÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûýýþÿRr"!@#$%&*()_-+={[}]/?;:.,\\\'<>°ºª|';
     $replace = 'aaaaaaaceeeeiiiidnoooooouuuuuybsaaaaaaaceeeeiiiidnoooooouuuyybyRr                                 ';
 
     $slug = str_replace(["-----","----", "---", "--"], "-",
@@ -288,6 +288,23 @@ function str_slug($string)
         )
     );
     return $slug;
+}
+
+/**
+ * @param string $string
+ * @param int $limit
+ * @param string $pointer
+ * @return string
+ */
+function str_limit_chars($string, $limit, $pointer = "..."): string
+{
+    $string = trim(filter_var($string, FILTER_SANITIZE_SPECIAL_CHARS));
+    if (mb_strlen($string) <= $limit) {
+        return $string;
+    }
+
+    $chars = mb_substr($string, 0, mb_strrpos(mb_substr($string, 0, $limit), " "));
+    return "{$chars}{$pointer}";
 }
 
 /**
@@ -358,10 +375,13 @@ function clearInput($key = null)
  * @param $folder
  * @return string
  */
-function cutImage($file, $width, $height, $folder)
+function cutImage($file, $width = 0, $height = 0, $folder)
 {
     list($wOriginal, $hOriginal) = getimagesize($file["tmp_name"]);
     $rate = ($wOriginal / $hOriginal);
+
+    $width = ($width <= 0) ? $wOriginal : $width;
+    $height = ($height <= 0) ? $hOriginal : $height;
 
     $newWidth = $width;
     $newHeight = ($newWidth / $rate);
@@ -454,7 +474,7 @@ function type_job($index, $lower = false)
  * @param array $files
  * @param $page
  */
-function loadJSAdmin($files = [], $page)
+function loadJSAdmin($files = [], $pages = [])
 {
     $url = isset($_GET["uri"]) ? $_GET["uri"] : "";
 
@@ -463,7 +483,7 @@ function loadJSAdmin($files = [], $page)
         $url = "{$arr[0]}/{$arr[1]}/{$arr[2]}";
     }
 
-    if ($page === $url) {
+    if (in_array($url, $pages)) {
         foreach ($files as $key => $value) {
             echo '<script src="'.asset($value).'"></script>';
         }
@@ -474,7 +494,7 @@ function loadJSAdmin($files = [], $page)
  * @param array $files
  * @param $page
  */
-function loadCSSAdmin($files = [], $page)
+function loadCSSAdmin($files = [], $pages = [])
 {
     $url = isset($_GET["uri"]) ? $_GET["uri"] : "";
 
@@ -483,7 +503,7 @@ function loadCSSAdmin($files = [], $page)
         $url = "{$arr[0]}/{$arr[1]}/{$arr[2]}";
     }
 
-    if ($page === $url) {
+    if (in_array($url, $pages)) {
         foreach ($files as $key => $value) {
             echo '<link rel="stylesheet" href="'.asset($value).'" />';
         }
@@ -514,6 +534,7 @@ function field_name($field)
         "salary_range_final" => "Faixa Salarial Final",
         "salary_period" => "Faixa Salarial Período",
         "contact_email" => "E-mail de contato",
+        "company_logo" => "Logo da empresa",
     ];
 
     return $arr[$field] ?? $field;

@@ -1,4 +1,4 @@
-<nav aria-label="...">
+<nav aria-label="navigate-pagination">
     <ul class="pagination">
         <?php for($i = 1; $i <= $pages; $i++): ?>
             <li class="page-item <?=($page === $i) ? "active" : ""?>">
