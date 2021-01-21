@@ -540,4 +540,16 @@ function field_name($field)
     return $arr[$field] ?? $field;
 }
 
+/**
+ * @param string $date
+ * @param string $format
+ * @return string
+ * @throws Exception
+ */
+function date_fmt($date, $format = "d/m/Y H\hi")
+{
+    $date = (empty($date) ? "now" : $date);
+    return (new DateTime($date))->format($format);
+}
+
 
