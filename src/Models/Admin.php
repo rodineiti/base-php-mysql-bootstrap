@@ -3,6 +3,7 @@
 namespace Src\Models;
 
 use Src\Core\Model;
+use Exception;
 
 /**
  * Class Admin
@@ -41,6 +42,53 @@ class Admin extends Model
         }
 
         return $user;
+    }
+    
+    public function save()
+    {
+        if (!$this->checkEmail() || !$this->passwordHash()) {
+            return false;
+        }
+
+        return parent::save();
+    }
+
+    protected function checkEmail()
+    {
+        $check = null;
+
+        if ($this->id) {
+            $check = $this->select()
+                ->where("email", "=", $this->email)
+                ->where("id", "<>", $this->id)
+                ->count();
+        } else {
+            $check = $this->select()
+                ->where("email", "=", $this->email)
+                ->count();
+        }
+
+        if ($check) {
+            $this->error = new Exception("Este e-mail {$this->email} já está em uso.");
+            return false;
+        }
+
+        return true;
+    }
+
+    protected function passwordHash()
+    {
+        if (empty($this->password) || strlen($this->password) < 6) {
+            $this->error = new Exception("Sua senha precisa ter pelo menos 6 dígitos.");
+            return false;
+        }
+
+        if (password_get_info($this->password)["algo"]) {
+            return true;
+        }
+
+        $this->password = password_hash($this->password, CONF_PASSWORD_ALGO, CONF_PASSWORD_OPTION);
+        return true;
     }
 }
 
