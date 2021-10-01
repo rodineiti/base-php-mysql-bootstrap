@@ -2,6 +2,8 @@
 
 namespace Src\Core;
 
+use DateTime;
+
 /**
  * Abstract Class Model - Pattern Supertype
  * @package Src\Core
@@ -60,15 +62,21 @@ abstract class Model
      * @var \PDOException|null
      */
     protected $error;
+    
+    /** 
+     * @var string $timestamps
+     */
+    protected $timestamps;
 
     /**
      * Model constructor.
      * @param string $table
      */
-    public function __construct(string $table)
+    public function __construct(string $table, bool $timestamps = true)
     {
         $this->db = Connection::getInstance();
         $this->table = $table;
+        $this->timestamps = $timestamps;
     }
 
     /**
@@ -436,6 +444,11 @@ abstract class Model
      */
     protected function insert(array $data)
     {
+        if ($this->timestamps) {
+            $data["created_at"] = (new DateTime("now"))->format("Y-m-d H:i:s");
+            $data["updated_at"] = $data["created_at"];
+        }
+        
         $values = array();
         for ($i = 0; $i < count($data); $i++) {
             $values[] = "?";
@@ -461,6 +474,10 @@ abstract class Model
      */
     protected function update(array $data, array $where)
     {
+        if ($this->timestamps) {
+            $data["updated_at"] = (new DateTime("now"))->format("Y-m-d H:i:s");
+        }
+        
         $fields = array_keys($data);
         $values = array_values($data);
         $dataSet = array();
