@@ -43,6 +43,10 @@ abstract class Model
      */
     protected $order;
     /**
+     * @var string
+     */
+    protected $groupBy;
+    /**
      * @var array
      */
     protected $where;
@@ -152,7 +156,7 @@ abstract class Model
             $this->clauseJoins();
             $this->clauseWhere();
 
-            $stmt = $this->db->prepare($this->query . $this->order . $this->limit . $this->offset);
+            $stmt = $this->db->prepare($this->query . $this->groupBy . $this->order . $this->limit . $this->offset);
             $stmt->execute($this->params);
 
             if (!$stmt->rowCount()) {
@@ -176,7 +180,7 @@ abstract class Model
             $this->clauseJoins();
             $this->clauseWhere();
 
-            $stmt = $this->db->prepare($this->query . $this->order . $this->limit . $this->offset);
+            $stmt = $this->db->prepare($this->query . $this->groupBy . $this->order . $this->limit . $this->offset);
             $stmt->execute($this->params);
 
             if (!$stmt->rowCount()) {
@@ -207,6 +211,16 @@ abstract class Model
     public function offset(int $offset): Model
     {
         $this->offset = " OFFSET {$offset} ";
+        return $this;
+    }
+    
+    /**
+     * @param string $column
+     * @return Model
+     */
+    public function groupBy(string $column): Model
+    {
+        $this->groupBy = " GROUP BY {$column} ";
         return $this;
     }
 
@@ -435,7 +449,7 @@ abstract class Model
     {
         $this->clauseJoins();
         $this->clauseWhere();
-        return $this->query . $this->order . $this->limit . $this->offset;
+        return $this->query . $this->groupBy . $this->order . $this->limit . $this->offset;
     }
 
     /**
