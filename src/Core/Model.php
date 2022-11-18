@@ -63,6 +63,10 @@ abstract class Model
      */
     protected $rightJoin;
     /**
+     * @var array
+     */
+    protected $ons;
+    /**
      * @var \PDOException|null
      */
     protected $error;
@@ -244,6 +248,17 @@ abstract class Model
         if (!$args[0] instanceof \Closure && $args[0] && $args[1]) {
             $this->join[] = " INNER JOIN {$table} ON ({$table}.{$args[0]} = {$this->table}.{$args[1]}) ";
         }
+        
+        if (is_object($args[0]) && ($args[0] instanceof \Closure)) {
+            $this->ons = [];
+
+            call_user_func_array($args[0], array(&$this));
+
+            $this->join[] = " INNER JOIN {$table} ON (" . implode(" ", $this->ons) . ") ";
+
+            return $this;
+        }
+
         return $this;
     }
 
@@ -257,6 +272,17 @@ abstract class Model
         if (!$args[0] instanceof \Closure && $args[0] && $args[1]) {
             $this->leftJoin[] = " LEFT OUTER JOIN {$table} ON ({$table}.{$args[0]} = {$this->table}.{$args[1]}) ";
         }
+
+        if (is_object($args[0]) && ($args[0] instanceof \Closure)) {
+            $this->ons = [];
+
+            call_user_func_array($args[0], array(&$this));
+
+            $this->leftJoin[] = " LEFT OUTER JOIN {$table} ON (" . implode(" ", $this->ons) . ") ";
+
+            return $this;
+        }
+
         return $this;
     }
 
@@ -270,6 +296,48 @@ abstract class Model
         if (!$args[0] instanceof \Closure && $args[0] && $args[1]) {
             $this->rightJoin[] = " RIGHT OUTER JOIN {$table} ON ({$table}.{$args[0]} = {$this->table}.{$args[1]}) ";
         }
+
+        if (is_object($args[0]) && ($args[0] instanceof \Closure)) {
+            $this->ons = [];
+
+            call_user_func_array($args[0], array(&$this));
+
+            $this->rightJoin[] = " RIGHT OUTER JOIN {$table} ON (" . implode(" ", $this->ons) . ") ";
+
+            return $this;
+        }
+        
+        return $this;
+    }
+
+    /**
+     * @param string $localKey
+     * @param string $operator
+     * @param string $referenceKey
+     * @param string $expression
+     * @return Model
+     */
+    public function on(string $localKey, string $operator, string $referenceKey, string $expression = 'AND'): Model
+    {
+        if (is_array($this->ons) && count($this->ons) > 0) {
+            $this->ons[] = " $expression $localKey $operator $referenceKey ";            
+        } else {
+            $this->ons[] = " $localKey $operator $referenceKey ";
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $localKey
+     * @param string $operator
+     * @param string $referenceKey
+     * @return Model
+     */
+    public function orOn(string $localKey, string $operator, string $referenceKey): Model
+    {
+        $this->on($localKey, $operator, $referenceKey, "OR");
+
         return $this;
     }
 

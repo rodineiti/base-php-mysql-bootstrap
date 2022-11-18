@@ -128,6 +128,16 @@ $users = $model
 
 var_dump($users);
 
+// find with join address conditions
+$users = $model
+    ->select()
+    ->join("address", function ($query) {
+        $query->on("address.user_id", "=", "users.id");
+    })
+    ->all();
+
+var_dump($users);
+
 $model = new User();
 // find with left join address
 $users = $model
